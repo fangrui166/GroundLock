@@ -1,0 +1,4 @@
+EWARM/settings/*
+EWARM/Debug/*
+EWARM/*.tmp
+
