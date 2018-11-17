@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>GL</name>
+    <name>Debug</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -96,6 +96,18 @@
     </group>
     <group>
       <name>User</name>
+      <group>
+        <name>shell</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\shell\shellTask.c</name>
+        </file>
+      </group>
+      <group>
+        <name>uart</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\uart\uart_debug_drv.c</name>
+        </file>
+      </group>
       <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
@@ -104,6 +116,39 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\stm32f1xx_it.c</name>
+      </file>
+    </group>
+  </group>
+  <group>
+    <name>Contiki</name>
+    <group>
+      <name>core</name>
+      <group>
+        <name>sys</name>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\sys\autostart.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\sys\ctimer.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\sys\etimer.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\sys\process.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\sys\procinit.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\sys\timer.c</name>
+        </file>
+      </group>
+    </group>
+    <group>
+      <name>cpu</name>
+      <file>
+        <name>$PROJ_DIR$\..\contiki\cpu\arm\stm32f103\clock.c</name>
       </file>
     </group>
   </group>
