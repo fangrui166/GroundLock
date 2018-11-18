@@ -47,7 +47,11 @@
 #include <contiki.h>
 #include <autostart.h>
 #include "uart_debug_drv.h"
+#include "uart_485_drv.h"
 #include "shellTask.h"
+#include "trx485_if.h"
+#include "flash_drv.h"
+#include "wdt.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -57,12 +61,9 @@ ADC_HandleTypeDef hadc1;
 
 CRC_HandleTypeDef hcrc;
 
-IWDG_HandleTypeDef hiwdg;
 
 RTC_HandleTypeDef hrtc;
 
-UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -72,11 +73,9 @@ UART_HandleTypeDef huart2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_CRC_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -117,26 +116,28 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_IWDG_Init();
   MX_RTC_Init();
   MX_CRC_Init();
   MX_ADC1_Init();
+  flash_init();
   DebugUart_Init();
-  MX_USART2_UART_Init();
+  TRx485Uart_Init();
   /* USER CODE BEGIN 2 */
   clock_init();
   process_init();
   process_start(&etimer_process,NULL);
   //autostart_start(autostart_processes);
   Shell_init();
+  TRx485_Init();
 
   /* USER CODE END 2 */
+  wdt_init();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("Processes running\n");
   while(1){
-      //wdt_reset();
+      wdt_reset();
       retval = process_run();
       if((retval == 0) && (process_nevents() == 0)){
           /* Idle! */
@@ -254,19 +255,6 @@ static void MX_CRC_Init(void)
 
 }
 
-/* IWDG init function */
-static void MX_IWDG_Init(void)
-{
-
-  hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-  hiwdg.Init.Reload = 4095;
-  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
 
 /* RTC init function */
 static void MX_RTC_Init(void)
@@ -310,25 +298,6 @@ static void MX_RTC_Init(void)
   DateToUpdate.Year = 0x0;
 
   if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/* USART2 init function */
-static void MX_USART2_UART_Init(void)
-{
-
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -391,15 +360,6 @@ void assert_failed(uint8_t* file, uint32_t line)
 /**
   * @}
   */
-int __io_putchar(int ch)
-{
-    return DebugUart_Transmit((uint8_t *) (&ch), 1);
-}
-
-int __io_puts(char *ptr, int len)
-{
-    return DebugUart_Transmit((uint8_t *) ptr, (uint16_t) len);
-}
 
 /**
   * @}

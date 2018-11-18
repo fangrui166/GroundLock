@@ -313,6 +313,11 @@
           <state>$PROJ_DIR$\..\contiki\cpu\arm\stm32f103</state>
           <state>$PROJ_DIR$\..\Src\uart</state>
           <state>$PROJ_DIR$\..\Src\shell</state>
+          <state>$PROJ_DIR$\..\Src\flash</state>
+          <state>$PROJ_DIR$\..\Src\misc_ro</state>
+          <state>$PROJ_DIR$\..\Src\misc_rw</state>
+          <state>$PROJ_DIR$\..\Src\unit</state>
+          <state>$PROJ_DIR$\..\Src\wdt</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -965,6 +970,24 @@
     <group>
       <name>User</name>
       <group>
+        <name>flash</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\flash\flash_drv.c</name>
+        </file>
+      </group>
+      <group>
+        <name>misc_ro</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\misc_ro\misc_data_ro.c</name>
+        </file>
+      </group>
+      <group>
+        <name>misc_rw</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\misc_rw\misc_data_rw.c</name>
+        </file>
+      </group>
+      <group>
         <name>shell</name>
         <file>
           <name>$PROJ_DIR$\..\Src\shell\shellTask.c</name>
@@ -973,11 +996,32 @@
       <group>
         <name>uart</name>
         <file>
+          <name>$PROJ_DIR$\..\Src\uart\trx485_if.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Src\uart\uart_485_drv.c</name>
+        </file>
+        <file>
           <name>$PROJ_DIR$\..\Src\uart\uart_debug_drv.c</name>
+        </file>
+      </group>
+      <group>
+        <name>unit</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\unit\unit.c</name>
+        </file>
+      </group>
+      <group>
+        <name>wdt</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\wdt\wdt.c</name>
         </file>
       </group>
       <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\myprintf.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\stm32f1xx_hal_msp.c</name>

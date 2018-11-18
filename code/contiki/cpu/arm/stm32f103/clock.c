@@ -11,13 +11,12 @@ static unsigned int second_countdown = CLOCK_SECOND;
 //void SysTick_handler(void) __attribute__ ((interrupt));
 #define  SCB_ICSR_PENDSTCLR                  ((u32)0x02000000)        /* Clear pending SysTick bit */
 
-void
-SysTick_handler(void)
+void SysTick_Handler(void)
 {
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
-  (void)SysTick->CTRL;
-  SCB->ICSR = SCB_ICSR_PENDSTCLR;
+  //(void)SysTick->CTRL;
+  //SCB->ICSR = SCB_ICSR_PENDSTCLR;
   current_clock++;
   if(etimer_pending() && etimer_next_expiration_time() <= current_clock) {
     etimer_request_poll();

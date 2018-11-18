@@ -35,6 +35,7 @@
 #include "stm32f1xx.h"
 #include "stm32f1xx_it.h"
 #include "uart_debug_drv.h"
+#include "uart_485_drv.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -195,6 +196,7 @@ void SysTick_Handler(void)
 /* USER CODE BEGIN 1 */
 void USART1_IRQHandler(void)
 {
+    TRx485Uart_IRQHandler();
 }
 void USART2_IRQHandler(void)
 {

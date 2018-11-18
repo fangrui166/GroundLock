@@ -1,4 +1,4 @@
-#include "uart_debug_drv.h"
+#include "uart_485_drv.h"
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
@@ -6,13 +6,16 @@
 #include "stm32f1xx_hal.h"
 #include <contiki.h>
 #include "shellTask.h"
-#include <sys/process.h>
+#include "trx485_if.h"
 
 
-#define DEBUG_UART_RX_BUFFER_SIZE           255 // you'd better set as 255 to make code simply
-#define DEBUG_UART_RX_BUFFER_CACHE          10
-static uint8_t debug_uart_rx_buf[DEBUG_UART_RX_BUFFER_SIZE] = {0};
-static UART_HandleTypeDef debug_uart;
+#define TRX485_UART_RX_BUFFER_SIZE           255 // you'd better set as 255 to make code simply
+#define TRX485_UART_TX_BUFFER_SIZE           255
+#define TRX485_UART_RX_BUFFER_CACHE          10
+static uint8_t trx485_uart_rx_buf[TRX485_UART_RX_BUFFER_SIZE] = {0};
+static uint8_t trx485_uart_tx_buf[TRX485_UART_TX_BUFFER_SIZE] = {0};
+
+static UART_HandleTypeDef trx485_uart;
 typedef struct{
     uint8_t start;
     uint8_t end;
@@ -22,10 +25,10 @@ typedef struct {
     uint8_t rxbuf_wr_idx;
     volatile uint8_t item_wr_idx;
     volatile uint8_t item_rd_idx;
-    item_idx_range_t item_idx_range[DEBUG_UART_RX_BUFFER_CACHE];
+    item_idx_range_t item_idx_range[TRX485_UART_RX_BUFFER_CACHE];
 }rx_ring_buf_t;
-static rx_ring_buf_t debug_rx = {
-    .ringbuf = debug_uart_rx_buf,
+static rx_ring_buf_t trx485_rx = {
+    .ringbuf = trx485_uart_rx_buf,
     .rxbuf_wr_idx = 0,
     .item_wr_idx = 0,
     .item_rd_idx = 0,
@@ -33,57 +36,57 @@ static rx_ring_buf_t debug_rx = {
     };
 
 
-PROCESS(DebugUart_Handler, "DebugUart_Handler");
+PROCESS(TRx485Uart_Handler, "TRx485Uart_Handler");
 
-void DebugUart_FlushRxBuf(void)
+void TRx485Uart_FlushRxBuf(void)
 {
-	HAL_NVIC_DisableIRQ(DEBUGUART_IRQn);
-	debug_rx.item_rd_idx = 0;
-	debug_rx.item_wr_idx = 0;
-    debug_rx.rxbuf_wr_idx = 0;
-    debug_rx.item_idx_range[0].start = 0;
-	HAL_NVIC_EnableIRQ(DEBUGUART_IRQn);
+	HAL_NVIC_DisableIRQ(TRX485UART_IRQn);
+	trx485_rx.item_rd_idx = 0;
+	trx485_rx.item_wr_idx = 0;
+    trx485_rx.rxbuf_wr_idx = 0;
+    trx485_rx.item_idx_range[0].start = 0;
+	HAL_NVIC_EnableIRQ(TRX485UART_IRQn);
 }
 
-static void DebugUart_RxInit(void){
-	memset(debug_uart_rx_buf, 0, sizeof(debug_uart_rx_buf));
-	DEBUG_UART_PORT->CR1 |= USART_CR1_RXNEIE | USART_CR1_IDLEIE;
-	HAL_NVIC_SetPriority(DEBUGUART_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DEBUGUART_IRQn);
-    DebugUart_FlushRxBuf();
+static void TRx485Uart_RxInit(void){
+	memset(trx485_uart_rx_buf, 0, sizeof(trx485_uart_rx_buf));
+	TRX485_UART_PORT->CR1 |= USART_CR1_RXNEIE | USART_CR1_IDLEIE;
+	HAL_NVIC_SetPriority(TRX485UART_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(TRX485UART_IRQn);
+    TRx485Uart_FlushRxBuf();
 }
-void DebugUart_Init(void)
+void TRx485Uart_Init(void)
 {
-    debug_uart.Instance = DEBUG_UART_PORT;
-    debug_uart.Init.BaudRate = 115200;
-    debug_uart.Init.WordLength = UART_WORDLENGTH_8B;
-    debug_uart.Init.StopBits = UART_STOPBITS_1;
-    debug_uart.Init.Parity = UART_PARITY_NONE;
-    debug_uart.Init.Mode = UART_MODE_TX_RX;
-    debug_uart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    debug_uart.Init.OverSampling = UART_OVERSAMPLING_16;
+    trx485_uart.Instance = TRX485_UART_PORT;
+    trx485_uart.Init.BaudRate = 115200;
+    trx485_uart.Init.WordLength = UART_WORDLENGTH_8B;
+    trx485_uart.Init.StopBits = UART_STOPBITS_1;
+    trx485_uart.Init.Parity = UART_PARITY_NONE;
+    trx485_uart.Init.Mode = UART_MODE_TX_RX;
+    trx485_uart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    trx485_uart.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    if (HAL_UART_Init(&debug_uart) != HAL_OK)    {
+    if (HAL_UART_Init(&trx485_uart) != HAL_OK)    {
         printf("uart init error\n");
     }
-    DebugUart_RxInit();
-    process_start(&DebugUart_Handler,NULL);
+    TRx485Uart_RxInit();
+    process_start(&TRx485Uart_Handler,NULL);
 
     printf("%s\n",__func__);
 }
-static void DebugUart_FrameDone(void)
+static void TRx485Uart_FrameDone(void)
 {
-    uint8_t rd_idx = debug_rx.item_rd_idx;
-    debug_rx.item_idx_range[debug_rx.item_wr_idx].end = debug_rx.rxbuf_wr_idx-1;
-    if(((debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE) != rd_idx){
-        debug_rx.item_wr_idx = (debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE;
-        debug_rx.item_idx_range[debug_rx.item_wr_idx].start = debug_rx.rxbuf_wr_idx;
+    uint8_t rd_idx = trx485_rx.item_rd_idx;
+    trx485_rx.item_idx_range[trx485_rx.item_wr_idx].end = trx485_rx.rxbuf_wr_idx-1;
+    if(((trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE) != rd_idx){
+        trx485_rx.item_wr_idx = (trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE;
+        trx485_rx.item_idx_range[trx485_rx.item_wr_idx].start = trx485_rx.rxbuf_wr_idx;
     }
-    process_poll(&DebugUart_Handler);
+    process_poll(&TRx485Uart_Handler);
 }
-void DebugUart_IRQHandler(void)
+void TRx485Uart_IRQHandler(void)
 {
-    UART_HandleTypeDef *huart = &debug_uart;
+    UART_HandleTypeDef *huart = &trx485_uart;
     uint32_t isrflags = READ_REG(huart->Instance->SR);
     uint32_t cr1its     = READ_REG(huart->Instance->CR1);
     uint32_t cr3its     = READ_REG(huart->Instance->CR3);
@@ -96,13 +99,13 @@ void DebugUart_IRQHandler(void)
     if (errorflags == RESET){
       /* UART in mode Receiver ---------------------------------------------------*/
       if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET)){
-        debug_rx.ringbuf[debug_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
+        trx485_rx.ringbuf[trx485_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
         return;
       }
-      if((isrflags & USART_SR_IDLE) != RESET){
+      else if((isrflags & USART_SR_IDLE) != RESET){
         dmarequest = (uint8_t)(huart->Instance->SR);
         dmarequest = (uint8_t)(huart->Instance->DR);
-        DebugUart_FrameDone();
+        TRx485Uart_FrameDone();
         return;
       }
     }
@@ -142,7 +145,7 @@ void DebugUart_IRQHandler(void)
           /* UART in mode Receiver -----------------------------------------------*/
           if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
           {
-              debug_rx.ringbuf[debug_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
+              trx485_rx.ringbuf[trx485_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
           }
 
           /* If Overrun error occurs, or if any error occurs in DMA mode reception,
@@ -178,48 +181,54 @@ void DebugUart_IRQHandler(void)
 
 }
 
-void DebugUart_PollBuf(void)
+void TRx485Uart_PollBuf(void)
 {
-    process_poll(&DebugUart_Handler);
+    process_poll(&TRx485Uart_Handler);
 }
 
 /*
-static int DebugUart_RxBufItemCount(void)
+static int TRx485Uart_RxBufItemCount(void)
 {
-    return ((debug_rx.item_wr_idx - debug_rx.item_rd_idx)%DEBUG_UART_RX_BUFFER_CACHE);
+    return ((trx485_rx.item_wr_idx - trx485_rx.item_rd_idx)%TRX485_UART_RX_BUFFER_CACHE);
 }
 */
-static int DebugUart_RxBufLen(uint8_t index){
-	return ((debug_rx.item_idx_range[index].end - debug_rx.item_idx_range[index].start)%DEBUG_UART_RX_BUFFER_SIZE)+1;
+static int TRx485Uart_RxBufLen(uint8_t index){
+	return ((trx485_rx.item_idx_range[index].end - trx485_rx.item_idx_range[index].start)%TRX485_UART_RX_BUFFER_SIZE)+1;
 }
 
-static void DebugUart_RxBufRead(uint8_t * data, uint8_t len){
+static void TRx485Uart_RxBufRead(uint8_t * data, uint8_t len){
 	for(uint8_t i = 0; i < len; i++){
-		data[i] = debug_rx.ringbuf[debug_rx.item_idx_range[debug_rx.item_rd_idx].start++];
+		data[i] = trx485_rx.ringbuf[trx485_rx.item_idx_range[trx485_rx.item_rd_idx].start++];
 	}
-    debug_rx.item_rd_idx = (debug_rx.item_rd_idx+1)%DEBUG_UART_RX_BUFFER_CACHE;
+    trx485_rx.item_rd_idx = (trx485_rx.item_rd_idx+1)%TRX485_UART_RX_BUFFER_CACHE;
 }
-int DebugUart_Printf(char *fmt, ...)
+int TRx485Uart_Printf(char *fmt, ...)
 {
     int retval;
     va_list vp;
-    char logmsg_buf[DEBUG_UART_RX_BUFFER_SIZE]={0};
+    char logmsg_buf[TRX485_UART_RX_BUFFER_SIZE]={0};
 
     va_start(vp, fmt);
-    retval = vsnprintf(logmsg_buf, DEBUG_UART_RX_BUFFER_SIZE, fmt, vp);
+    retval = vsnprintf(logmsg_buf, TRX485_UART_RX_BUFFER_SIZE, fmt, vp);
     va_end(vp);
 
-    HAL_UART_Transmit(&debug_uart, (uint8_t*)logmsg_buf, retval, 50);
+    HAL_UART_Transmit(&trx485_uart, (uint8_t*)logmsg_buf, retval, 50);
 
     return retval;
 }
-int DebugUart_Transmit(uint8_t * buf, uint16_t len)
+int TRx485Uart_Transmit(uint8_t * buf, uint16_t len)
 {
-    return (int)HAL_UART_Transmit(&debug_uart, buf, len, 50);
+    int ret;
+    ret = HAL_UART_Transmit(&trx485_uart, buf, len, 50);
+    return ret;
 }
 
+uint8_t * TRx485Get_TxBuf(void)
+{
+    return trx485_uart_tx_buf;
+}
 
-PROCESS_THREAD(DebugUart_Handler, ev, data)
+PROCESS_THREAD(TRx485Uart_Handler, ev, data)
 {
     /* this code will execute for every event */
     PROCESS_BEGIN();
@@ -228,15 +237,15 @@ PROCESS_THREAD(DebugUart_Handler, ev, data)
         PROCESS_YIELD();
         if(ev == PROCESS_EVENT_POLL )
         {
-            uint8_t rd_idx = debug_rx.item_rd_idx;
-            uint8_t wr_idx = debug_rx.item_wr_idx;
+            uint8_t rd_idx = trx485_rx.item_rd_idx;
+            uint8_t wr_idx = trx485_rx.item_wr_idx;
             do{
-                uint8_t data[DEBUG_UART_RX_BUFFER_SIZE] = {0};
-                uint8_t len = DebugUart_RxBufLen(debug_rx.item_rd_idx);
+                uint8_t data[TRX485_UART_RX_BUFFER_SIZE] = {0};
+                uint8_t len = TRx485Uart_RxBufLen(trx485_rx.item_rd_idx);
                 if(len == 0) continue;
-                DebugUart_RxBufRead(data,len);
-                Shell_rec_buf((char*)data,len);
-                printf("%s",data);
+                TRx485Uart_RxBufRead(data,len);
+                TRx485_ParsePacket(data,len);
+                //printf("%s",data);
             }while(rd_idx != wr_idx);
         }
     }
