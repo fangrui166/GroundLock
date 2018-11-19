@@ -109,6 +109,9 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+  clock_init();
+  process_init();
+  process_start(&etimer_process,NULL);
 
   /* USER CODE BEGIN SysInit */
 
@@ -123,9 +126,6 @@ int main(void)
   DebugUart_Init();
   TRx485Uart_Init();
   /* USER CODE BEGIN 2 */
-  clock_init();
-  process_init();
-  process_start(&etimer_process,NULL);
   //autostart_start(autostart_processes);
   Shell_init();
   TRx485_Init();

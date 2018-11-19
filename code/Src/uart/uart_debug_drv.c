@@ -20,8 +20,8 @@ typedef struct{
 typedef struct {
     uint8_t * ringbuf;
     uint8_t rxbuf_wr_idx;
-    volatile uint8_t item_wr_idx;
-    volatile uint8_t item_rd_idx;
+    uint8_t item_wr_idx;
+    uint8_t item_rd_idx;
     item_idx_range_t item_idx_range[DEBUG_UART_RX_BUFFER_CACHE];
 }rx_ring_buf_t;
 static rx_ring_buf_t debug_rx = {
@@ -73,12 +73,12 @@ void DebugUart_Init(void)
 }
 static void DebugUart_FrameDone(void)
 {
-    uint8_t rd_idx = debug_rx.item_rd_idx;
     debug_rx.item_idx_range[debug_rx.item_wr_idx].end = debug_rx.rxbuf_wr_idx-1;
-    if(((debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE) != rd_idx){
+    if(((debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE) != debug_rx.item_rd_idx){
         debug_rx.item_wr_idx = (debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE;
         debug_rx.item_idx_range[debug_rx.item_wr_idx].start = debug_rx.rxbuf_wr_idx;
     }
+
     process_poll(&DebugUart_Handler);
 }
 void DebugUart_IRQHandler(void)
@@ -228,8 +228,6 @@ PROCESS_THREAD(DebugUart_Handler, ev, data)
         PROCESS_YIELD();
         if(ev == PROCESS_EVENT_POLL )
         {
-            uint8_t rd_idx = debug_rx.item_rd_idx;
-            uint8_t wr_idx = debug_rx.item_wr_idx;
             do{
                 uint8_t data[DEBUG_UART_RX_BUFFER_SIZE] = {0};
                 uint8_t len = DebugUart_RxBufLen(debug_rx.item_rd_idx);
@@ -237,7 +235,7 @@ PROCESS_THREAD(DebugUart_Handler, ev, data)
                 DebugUart_RxBufRead(data,len);
                 Shell_rec_buf((char*)data,len);
                 printf("%s",data);
-            }while(rd_idx != wr_idx);
+            }while(debug_rx.item_rd_idx != debug_rx.item_wr_idx);
         }
     }
     PROCESS_END();

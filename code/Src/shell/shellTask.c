@@ -274,7 +274,7 @@ void Shell_rec_buf(char *data, uint8_t length)
     memcpy(&CMDCacheBuf[CMD_Cache_Head].buf[rec_count], data, length);
     rec_count += length;
     if(/*(0x0D == CMDCacheBuf[CMD_Cache_Head].buf[rec_count-1]) &&*/ //support mtty in mfg mode
-        (0x0D == CMDCacheBuf[CMD_Cache_Head].buf[rec_count])){
+        (0x0D == CMDCacheBuf[CMD_Cache_Head].buf[rec_count-2])){
         CMDCacheBuf[CMD_Cache_Head].lenght = rec_count;
         rec_count = 0;
         if(++CMD_Cache_Head >= CMD_CACHE_LEN){
