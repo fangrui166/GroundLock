@@ -23,8 +23,8 @@ typedef struct{
 typedef struct {
     uint8_t * ringbuf;
     uint8_t rxbuf_wr_idx;
-    volatile uint8_t item_wr_idx;
-    volatile uint8_t item_rd_idx;
+    uint8_t item_wr_idx;
+    uint8_t item_rd_idx;
     item_idx_range_t item_idx_range[TRX485_UART_RX_BUFFER_CACHE];
 }rx_ring_buf_t;
 static rx_ring_buf_t trx485_rx = {
@@ -58,7 +58,7 @@ static void TRx485Uart_RxInit(void){
 void TRx485Uart_Init(void)
 {
     trx485_uart.Instance = TRX485_UART_PORT;
-    trx485_uart.Init.BaudRate = 115200;
+    trx485_uart.Init.BaudRate = 9600;
     trx485_uart.Init.WordLength = UART_WORDLENGTH_8B;
     trx485_uart.Init.StopBits = UART_STOPBITS_1;
     trx485_uart.Init.Parity = UART_PARITY_NONE;
@@ -76,9 +76,8 @@ void TRx485Uart_Init(void)
 }
 static void TRx485Uart_FrameDone(void)
 {
-    uint8_t rd_idx = trx485_rx.item_rd_idx;
     trx485_rx.item_idx_range[trx485_rx.item_wr_idx].end = trx485_rx.rxbuf_wr_idx-1;
-    if(((trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE) != rd_idx){
+    if(((trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE) != trx485_rx.item_rd_idx){
         trx485_rx.item_wr_idx = (trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE;
         trx485_rx.item_idx_range[trx485_rx.item_wr_idx].start = trx485_rx.rxbuf_wr_idx;
     }
@@ -237,16 +236,19 @@ PROCESS_THREAD(TRx485Uart_Handler, ev, data)
         PROCESS_YIELD();
         if(ev == PROCESS_EVENT_POLL )
         {
-            uint8_t rd_idx = trx485_rx.item_rd_idx;
-            uint8_t wr_idx = trx485_rx.item_wr_idx;
             do{
                 uint8_t data[TRX485_UART_RX_BUFFER_SIZE] = {0};
                 uint8_t len = TRx485Uart_RxBufLen(trx485_rx.item_rd_idx);
-                if(len == 0) continue;
                 TRx485Uart_RxBufRead(data,len);
+                if(len == 0) {
+                    if(trx485_rx.item_rd_idx != trx485_rx.item_wr_idx)
+                        continue;
+                    else
+                        break;
+                }
                 TRx485_ParsePacket(data,len);
-                //printf("%s",data);
-            }while(rd_idx != wr_idx);
+                printf("%s",data);
+            }while(trx485_rx.item_rd_idx != trx485_rx.item_wr_idx);
         }
     }
     PROCESS_END();

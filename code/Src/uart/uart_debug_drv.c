@@ -231,8 +231,13 @@ PROCESS_THREAD(DebugUart_Handler, ev, data)
             do{
                 uint8_t data[DEBUG_UART_RX_BUFFER_SIZE] = {0};
                 uint8_t len = DebugUart_RxBufLen(debug_rx.item_rd_idx);
-                if(len == 0) continue;
                 DebugUart_RxBufRead(data,len);
+                if(len == 0) {
+                    if(debug_rx.item_rd_idx != debug_rx.item_wr_idx)
+                        continue;
+                    else
+                        break;
+                }
                 Shell_rec_buf((char*)data,len);
                 printf("%s",data);
             }while(debug_rx.item_rd_idx != debug_rx.item_wr_idx);

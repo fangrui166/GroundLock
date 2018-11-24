@@ -5,6 +5,10 @@
 #include <contiki.h>
 #include "stm32f1xx_hal.h"
 #include "shellTask.h"
+#include "trx485_if.h"
+#include "gl_manager.h"
+#include "adc.h"
+#include "spk.h"
 
 PROCESS(shell_process, "shell");
 
@@ -30,10 +34,35 @@ __weak int get_task_state(int argc, char *argv[], _command_source source)
     return 0;
 }
 
+int uart485_test(int argc, char *argv[], _command_source source)
+{
+    TRx485_LockOn();
+    return 0;
+}
+int spk_test(int argc, char *argv[], _command_source source)
+{
+    SPK_Start(100);
+    return 0;
+}
+int lock_test(int argc, char *argv[], _command_source source)
+{
+    if(argc == 2){
+        if(!strncmp(argv[1], "on", 2)){
+            Gl_LockOn();
+        }
+        else if(!strncmp(argv[1], "off", 3)){
+            Gl_LockOff();
+        }
+    }
+    return 0;
+}
 int cmd_help(int argc, char * argv[], _command_source source);
 const MONITOR_COMMAND commandTable[] =
 {
     {"task",    get_task_state},
+    {"485",     uart485_test},
+    {"spk",     spk_test},
+    {"lock",    lock_test},
     {"?",       cmd_help}, //This must be the last command
 };
 const unsigned long ulNumberOfCommands = (sizeof(commandTable) / sizeof(commandTable[0]));

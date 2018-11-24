@@ -97,9 +97,27 @@
     <group>
       <name>User</name>
       <group>
+        <name>adc</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\adc\adc.c</name>
+        </file>
+      </group>
+      <group>
+        <name>ctrl</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\ctrl\gl_ctrl.c</name>
+        </file>
+      </group>
+      <group>
         <name>flash</name>
         <file>
           <name>$PROJ_DIR$\..\Src\flash\flash_drv.c</name>
+        </file>
+      </group>
+      <group>
+        <name>manager</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\manager\gl_manager.c</name>
         </file>
       </group>
       <group>
@@ -118,6 +136,12 @@
         <name>shell</name>
         <file>
           <name>$PROJ_DIR$\..\Src\shell\shellTask.c</name>
+        </file>
+      </group>
+      <group>
+        <name>spk</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\spk\spk.c</name>
         </file>
       </group>
       <group>
@@ -151,6 +175,9 @@
         <name>$PROJ_DIR$\..\Src\myprintf.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\ring_buffer.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\stm32f1xx_hal_msp.c</name>
       </file>
       <file>
@@ -162,6 +189,12 @@
     <name>Contiki</name>
     <group>
       <name>core</name>
+      <group>
+        <name>lib</name>
+        <file>
+          <name>$PROJ_DIR$\..\contiki\core\lib\list.c</name>
+        </file>
+      </group>
       <group>
         <name>sys</name>
         <file>

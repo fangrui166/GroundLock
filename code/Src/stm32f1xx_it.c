@@ -36,6 +36,7 @@
 #include "stm32f1xx_it.h"
 #include "uart_debug_drv.h"
 #include "uart_485_drv.h"
+#include "gl_ctrl.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -46,6 +47,8 @@
 /******************************************************************************/
 /*            Cortex-M3 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
+extern DMA_HandleTypeDef hdma_adc1;
+extern ADC_HandleTypeDef hadc1;
 
 /**
 * @brief This function handles Non maskable interrupt.
@@ -194,6 +197,33 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+/**
+* @brief This function handles DMA1 channel1 global interrupt.
+*/
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+/**
+* @brief This function handles ADC1 and ADC2 global interrupts.
+*/
+void ADC1_2_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+
+  /* USER CODE END ADC1_2_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC1_2_IRQn 1 */
+
+  /* USER CODE END ADC1_2_IRQn 1 */
+}
+
 void USART1_IRQHandler(void)
 {
     TRx485Uart_IRQHandler();
@@ -203,5 +233,10 @@ void USART2_IRQHandler(void)
     DebugUart_IRQHandler();
 }
 
+void EXTI15_10_IRQHandler(void)
+{
+    HAL_GPIO_EXTI_IRQHandler(SWUP_GPIO);
+    HAL_GPIO_EXTI_IRQHandler(SWDOWN_GPIO);
+}
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

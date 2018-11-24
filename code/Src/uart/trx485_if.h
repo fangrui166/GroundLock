@@ -46,4 +46,6 @@ typedef enum{
 
 int TRx485_Init(void);
 int TRx485_ParsePacket(uint8_t *data, uint8_t length);
+int TRx485_LockOn(void);
+
 #endif

@@ -43,6 +43,7 @@
 #include <sys/process.h>
 #include <sys/procinit.h>
 #include <etimer.h>
+#include <sys/ctimer.h>
 #include <sys/autostart.h>
 #include <contiki.h>
 #include <autostart.h>
@@ -52,12 +53,15 @@
 #include "trx485_if.h"
 #include "flash_drv.h"
 #include "wdt.h"
+#include "adc.h"
+#include "spk.h"
+#include "gl_ctrl.h"
+#include "gl_manager.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
 
 CRC_HandleTypeDef hcrc;
 
@@ -75,7 +79,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 static void MX_CRC_Init(void);
-static void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -112,6 +115,7 @@ int main(void)
   clock_init();
   process_init();
   process_start(&etimer_process,NULL);
+  ctimer_init();
 
   /* USER CODE BEGIN SysInit */
 
@@ -121,7 +125,6 @@ int main(void)
   MX_GPIO_Init();
   MX_RTC_Init();
   MX_CRC_Init();
-  MX_ADC1_Init();
   flash_init();
   DebugUart_Init();
   TRx485Uart_Init();
@@ -129,6 +132,10 @@ int main(void)
   //autostart_start(autostart_processes);
   Shell_init();
   TRx485_Init();
+  ADC_Init();
+  SPK_Init();
+  Ctrl_Init();
+  Gl_ManagerInit();
 
   /* USER CODE END 2 */
   wdt_init();
@@ -211,37 +218,7 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* ADC1 init function */
-static void MX_ADC1_Init(void)
-{
 
-  ADC_ChannelConfTypeDef sConfig;
-
-    /**Common config
-    */
-  hadc1.Instance = ADC1;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
-  if (HAL_ADC_Init(&hadc1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Regular Channel
-    */
-  sConfig.Channel = ADC_CHANNEL_6;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
 
 /* CRC init function */
 static void MX_CRC_Init(void)

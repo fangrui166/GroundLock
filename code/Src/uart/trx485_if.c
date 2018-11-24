@@ -72,7 +72,7 @@ int cmd_respond(uint8_t response_t,uint8_t commandd, uint8_t * append, uint8_t a
 int TRx485_LockOn(void)
 {
     //todo lock on
-
+    printf("%s\n",__func__);
     return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_LOCK_ON, NULL, 0);
 }
 int TRx485_LockOff(void)

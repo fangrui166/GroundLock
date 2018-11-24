@@ -1,6 +1,6 @@
 #include "unit.h"
 #include "string.h"
-
+#include <stdio.h>
 #define bd_printf(fmt,...)  printf(fmt, ##__VA_ARGS__)
 
 /* Table of CRC values for Corder byte */
