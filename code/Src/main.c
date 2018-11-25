@@ -57,6 +57,8 @@
 #include "spk.h"
 #include "gl_ctrl.h"
 #include "gl_manager.h"
+#include "rom_info.h"
+#include "hlog.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -127,6 +129,9 @@ int main(void)
   MX_CRC_Init();
   flash_init();
   DebugUart_Init();
+  logi("%s build @ %s. version:%s\n", ROM_info, ROM_buildtime, ROM_version);
+  rom_info();
+  hlog_init();
   TRx485Uart_Init();
   /* USER CODE BEGIN 2 */
   //autostart_start(autostart_processes);
@@ -142,7 +147,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  printf("Processes running\n");
+  logi("Processes running\n");
   while(1){
       wdt_reset();
       retval = process_run();

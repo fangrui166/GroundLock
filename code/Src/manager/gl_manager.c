@@ -5,7 +5,7 @@
 #include "adc.h"
 #include <stdio.h>
 #include "spk.h"
-
+#include "hlog.h"
 
 static struct ctimer current_detc_timer;
 static struct ctimer moving_timeout_timer;
@@ -33,20 +33,20 @@ static void Gl_CurrentDetcCallback(void *ptr)
     Motor_state_t motor_state = Ctrl_GetMotorState();
     uint32_t current = ADC_GetCurrentAverage();
     if((current >= UP_MEET_RESISTANCE_CURRENT_MA) && (motor_state == MOTOR_MOVUP)){
-        printf("up over current:%d\n", current);
+        logi("up over current:%d\n", current);
         action_err_stage = ACTION_ERR_UP_ERR;
         Gl_CtrlLock(UNLOCK);
     }
     else if((current >= UP_BIG_DAMP_CURRENT_MA) && (motor_state == MOTOR_MOVUP)){
-        printf("up bit damp current:%d\n", current);
+        logi("up bit damp current:%d\n", current);
     }
     else if((current >= DOWN_MEET_RESISTANCE_CURRENT_MA) && (motor_state == MOTOR_MOVDOWN)){
-        printf("down over current:%d\n", current);
+        logi("down over current:%d\n", current);
         Gl_CtrlLock(STOP);
         Gl_SetLockState(LOCK_STATE_FIALDOWN);
     }
     else if((current >= DOWN_BIG_DAMP_CURRENT_MA) && (motor_state == MOTOR_MOVDOWN)){
-        printf("down bit damp current:%d\n", current);
+        logi("down bit damp current:%d\n", current);
     }
 
     if(!current_detc_timer_stop){
@@ -129,10 +129,10 @@ Lock_location Gl_GetLocation(void)
 int Gl_LockOn(void)
 {
     Lock_location location = Gl_GetLocation();
-    printf("%s location:%d\n", __func__, location);
+    logi("%s location:%d\n", __func__, location);
     switch(location){
         case LOCK_TOP:
-            printf("do nothing\n");
+            logi("do nothing\n");
             break;
         case LOCK_MIDDLE:
         case LOCK_BOTTOM:
@@ -145,14 +145,14 @@ int Gl_LockOn(void)
 int Gl_LockOff(void)
 {
     Lock_location location = Gl_GetLocation();
-    printf("%s location:%d\n", __func__, location);
+    logi("%s location:%d\n", __func__, location);
     switch(location){
         case LOCK_TOP:
         case LOCK_MIDDLE:
             Gl_CtrlLock(UNLOCK);
             break;
         case LOCK_BOTTOM:
-            printf("do nothing\n");
+            logi("do nothing\n");
             break;
     }
     return 0;

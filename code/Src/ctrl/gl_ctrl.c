@@ -2,7 +2,7 @@
 #include "stm32f1xx_hal.h"
 #include "gl_manager.h"
 #include <contiki.h>
-
+#include "hlog.h"
 static Motor_state_t motor_state;
 PROCESS(ctrl_process, "ctrl");
 Motor_state_t Ctrl_GetMotorState(void)
@@ -102,20 +102,20 @@ PROCESS_THREAD(ctrl_process, ev, data)
         if (PROCESS_EVENT_POLL == ev){
             Ctrl_status_t status = Ctrl_GetStatus();
             if((status == CTRL_STATUS_MOVING) && (motor_state == MOTOR_MOVDOWN)){
-                printf("start moving down\n");
+                logi("start moving down\n");
                 Gl_SetLockState(LOCK_STATE_MOVING);
             }
             else if((status == CTRL_STATUS_MOVING) && (motor_state == MOTOR_MOVUP)){
-                printf("start moving up\n");
+                logi("start moving up\n");
                 Gl_SetLockState(LOCK_STATE_MOVING);
             }
             else if((status == CTRL_STATUS_UP) && (motor_state == MOTOR_MOVUP)){
-                printf("arrived top\n");
+                logi("arrived top\n");
                 Gl_CtrlLock(STOP);
                 Gl_SetLockState(LOCK_STATE_LOCKED);
             }
             else if((status == CTRL_STATUS_DOWN) && (motor_state == MOTOR_MOVDOWN)){
-                printf("arrived bottom\n");
+                logi("arrived bottom\n");
                 Gl_CtrlLock(STOP);
                 if(Gl_GetActionErrStage() == ACTION_ERR_UP_ERR){
                     Gl_SetLockState(LOCK_STATE_MISSUPSUCCEDOWN);
@@ -125,7 +125,7 @@ PROCESS_THREAD(ctrl_process, ev, data)
                 }
             }
             else{
-                printf("what's happend? Ctrl_status:%d, motor_state:%d\n", status, motor_state);
+                logi("what's happend? Ctrl_status:%d, motor_state:%d\n", status, motor_state);
             }
         }
     }

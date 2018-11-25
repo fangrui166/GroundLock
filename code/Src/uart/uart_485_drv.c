@@ -7,7 +7,7 @@
 #include <contiki.h>
 #include "shellTask.h"
 #include "trx485_if.h"
-
+#include "hlog.h"
 
 #define TRX485_UART_RX_BUFFER_SIZE           255 // you'd better set as 255 to make code simply
 #define TRX485_UART_TX_BUFFER_SIZE           255
@@ -67,12 +67,12 @@ void TRx485Uart_Init(void)
     trx485_uart.Init.OverSampling = UART_OVERSAMPLING_16;
 
     if (HAL_UART_Init(&trx485_uart) != HAL_OK)    {
-        printf("uart init error\n");
+        logi("uart init error\n");
     }
     TRx485Uart_RxInit();
     process_start(&TRx485Uart_Handler,NULL);
 
-    printf("%s\n",__func__);
+    logi("%s\n",__func__);
 }
 static void TRx485Uart_FrameDone(void)
 {
@@ -247,7 +247,7 @@ PROCESS_THREAD(TRx485Uart_Handler, ev, data)
                         break;
                 }
                 TRx485_ParsePacket(data,len);
-                printf("%s",data);
+                logi("%s",data);
             }while(trx485_rx.item_rd_idx != trx485_rx.item_wr_idx);
         }
     }

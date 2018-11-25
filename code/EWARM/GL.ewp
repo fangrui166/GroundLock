@@ -322,6 +322,7 @@
           <state>$PROJ_DIR$\..\Src\ctrl</state>
           <state>$PROJ_DIR$\..\Src\spk</state>
           <state>$PROJ_DIR$\..\Src\manager</state>
+          <state>$PROJ_DIR$\..\Src\hlog</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -643,7 +644,7 @@
       <archiveVersion>1</archiveVersion>
       <data>
         <prebuild></prebuild>
-        <postbuild></postbuild>
+        <postbuild>$PROJ_DIR$\post-build.bat "$TARGET_BPATH$" $PROJ_DIR$\..\Src\rom_info.h Debug</postbuild>
       </data>
     </settings>
     <settings>
@@ -763,11 +764,12 @@
         </option>
         <option>
           <name>IlinkUseExtraOptions</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkExtraOptions</name>
-          <state></state>
+          <state>--place_holder ielftool_checksum,2,checksum,4</state>
+          <state>--keep=ielftool_checksum</state>
         </option>
         <option>
           <name>IlinkLowLevelInterfaceSlave</name>
@@ -992,6 +994,12 @@
         </file>
       </group>
       <group>
+        <name>hlog</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\hlog\hlog.c</name>
+        </file>
+      </group>
+      <group>
         <name>manager</name>
         <file>
           <name>$PROJ_DIR$\..\Src\manager\gl_manager.c</name>
@@ -1053,6 +1061,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\ring_buffer.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\rom_info.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\stm32f1xx_hal_msp.c</name>

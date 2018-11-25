@@ -2,7 +2,7 @@
 #include "stm32f1xx_hal.h"
 #include <contiki.h>
 #include "ring_buffer.h"
-
+#include "hlog.h"
 #define ADC_BUFFER_CURRENT_MAX_LEN  5
 #define ADC_AVERAGE_NUM             10
 ADC_HandleTypeDef hadc1;
@@ -43,7 +43,7 @@ uint32_t ADC_GetCurrentAverage(void)
         adc_sample_num = adc_sample_num - adc_raw_max - adc_raw_min;
         adc_raw_average = adc_sample_num/(adc_sample_num-2);
         adc_volatage_mv = ((adc_raw_average << 8) * 891) >> 16;
-        printf("adc_volatage_mv:%d\n", adc_volatage_mv);
+        logi("adc_volatage_mv:%d\n", adc_volatage_mv);
         adc_current_mA = ((adc_volatage_mv*2)); // I = U/R  , R = 0.5Ω
         adc_current_average = adc_current_mA;
     }
@@ -58,7 +58,7 @@ int ADC_GetRawData(uint16_t * adc_raw_data)
 {
 	uint32_t adc_value = 0;
 	if(ring_buffer_empty(&adc_current_buffer)){
-		printf("hall buffer empty\r\n");
+		logi("hall buffer empty\r\n");
 		return -1;
 	}
 	adc_value = *((uint32_t *)ring_buffer_dequeue(&adc_current_buffer));
@@ -77,7 +77,7 @@ void ADC_StopDMA(void)
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    printf("adc:%d\n", adc_convert_value);
+    logi("adc:%d\n", adc_convert_value);
     ring_buffer_enqueue(&adc_current_buffer, (uint8_t *) &adc_convert_value);
 }
 
@@ -111,7 +111,7 @@ void ADC_Init(void)
 
   /*ADC self calibration*/
   if (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK){
-      printf("ADC selt calibration Error\r\n");
+      logi("ADC selt calibration Error\r\n");
   }
 
   /* DMA controller clock enable */
