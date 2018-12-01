@@ -323,6 +323,7 @@
           <state>$PROJ_DIR$\..\Src\spk</state>
           <state>$PROJ_DIR$\..\Src\manager</state>
           <state>$PROJ_DIR$\..\Src\hlog</state>
+          <state>$PROJ_DIR$\..\Src\power</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1015,6 +1016,12 @@
         <name>misc_rw</name>
         <file>
           <name>$PROJ_DIR$\..\Src\misc_rw\misc_data_rw.c</name>
+        </file>
+      </group>
+      <group>
+        <name>power</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\power\power.c</name>
         </file>
       </group>
       <group>

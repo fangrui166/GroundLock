@@ -10,6 +10,9 @@
 #include "adc.h"
 #include "spk.h"
 #include "hlog.h"
+#include "misc_data_ro.h"
+#include "misc_data_rw.h"
+#include "power.h"
 
 PROCESS(shell_process, "shell");
 
@@ -61,6 +64,39 @@ int lock_test(int argc, char *argv[], _command_source source)
     }
     return 0;
 }
+int misc_test(int argc, char *argv[], _command_source source)
+{
+    int ret = 0;
+    if(argc == 3){
+        if(!strncmp(argv[1], "get", 3)){
+            if(!strncasecmp(argv[2], "BaudRate", 8)){
+                uint32_t baudrate;
+                ret = getBaudRate(&baudrate);
+                logi("BaudRate:%d\n", baudrate);
+            }
+        }
+    }
+    else if(argc == 4){
+        if(!strncmp(argv[1], "set", 3)){
+            if(!strncasecmp(argv[2], "BaudRate", 8)){
+                uint32_t baudrate = atoi(argv[3]);
+                logi("setBaudRate:%d\n", baudrate);
+                ret = setBaudRate(baudrate);
+            }
+        }
+    }
+    return ret;
+}
+
+int power_test(int argc, char *argv[], _command_source source)
+{
+    if(argc == 2){
+        if(!strncmp(argv[1], "reboot", 6)){
+            PWRMGR_SYSTEM_POWER_RESET();
+        }
+    }
+    return 0;
+}
 int cmd_help(int argc, char * argv[], _command_source source);
 const MONITOR_COMMAND commandTable[] =
 {
@@ -68,6 +104,8 @@ const MONITOR_COMMAND commandTable[] =
     {"485",     uart485_test},
     {"spk",     spk_test},
     {"lock",    lock_test},
+    {"misc",    misc_test},
+    {"pm",      power_test},
     {"?",       cmd_help}, //This must be the last command
 };
 const unsigned long ulNumberOfCommands = (sizeof(commandTable) / sizeof(commandTable[0]));

@@ -139,6 +139,12 @@
         </file>
       </group>
       <group>
+        <name>power</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\power\power.c</name>
+        </file>
+      </group>
+      <group>
         <name>shell</name>
         <file>
           <name>$PROJ_DIR$\..\Src\shell\shellTask.c</name>

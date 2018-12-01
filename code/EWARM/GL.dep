@@ -2,7 +2,7 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3244217693</fileChecksum>
+  <fileChecksum>4085351323</fileChecksum>
   <configuration>
     <name>Debug</name>
     <outputs>
@@ -298,6 +298,11 @@
       <file>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio_ex.h</file>
       <file>$PROJ_DIR$\Debug\List\system_stm32f1xx.lst</file>
       <file>$PROJ_DIR$\..\Src\misc_ro\misc_data_ro.h</file>
+      <file>$PROJ_DIR$\..\Src\power\power.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\power.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\power.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\power.lst</file>
+      <file>$PROJ_DIR$\..\Src\power\power.c</file>
     </outputs>
     <file>
       <name>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash_ex.c</name>
@@ -700,11 +705,11 @@
       <inputs>
         <tool>
           <name>ICCARM</name>
-          <file> 284 99 214 113 282 197 228 175 233 183 188 80 109 142 241 208 230 224 232 287 115 252 264 204 262 245 271 217 114 168 254 239 176 190 275 100 240 44 94 75 253 88 77 286 235 177 269 248 205 289 231 257 261 120 250 97 226 279 86 246 92 167 153 158 101 61 210 70 118 152 48 116</file>
+          <file> 284 99 214 113 282 197 228 175 233 183 188 80 109 142 241 208 230 224 232 287 115 252 264 204 262 245 271 217 114 168 254 239 176 190 275 100 240 44 94 75 253 88 77 286 235 177 269 248 205 289 231 257 261 120 250 97 226 279 86 246 92 167 153 158 101 61 210 70 118 152 48 116 291 59 106</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 284 99 214 113 282 197 228 175 233 183 188 80 109 142 241 208 230 224 232 287 115 252 264 204 262 245 271 217 114 168 254 239 176 190 275 100 240 44 94 75 253 88 77 286 235 177 269 248 205 289 231 257 261 120 250 97 226 279 86 246 92 167 153 158 101 61 210 70 118 152 48 116</file>
+          <file> 284 99 214 113 282 197 228 175 233 183 188 80 109 142 241 208 230 224 232 287 115 252 264 204 262 245 271 217 114 168 254 239 176 190 275 100 240 44 94 75 253 88 77 286 235 177 269 248 205 289 231 257 261 120 250 97 226 279 86 246 92 167 153 158 101 61 210 70 118 152 48 116 291 59 106 292</file>
         </tool>
       </inputs>
     </file>
@@ -861,10 +866,6 @@
       <inputs>
         <tool>
           <name>ICCARM</name>
-          <file> 75 253 88 188 99 214 113 282 197 228 175 77 286 235 177 269 275 100 240 44 94 284 233 183 248 205 289 231 257 261 120 250 97 226 279 86 246 92 167 153 158 101</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
           <file> 75 253 88 188 99 214 113 282 197 228 175 77 286 235 177 269 275 100 240 44 94 284 233 183 248 205 289 231 257 261 120 250 97 226 279 86 246 92 167 153 158 101</file>
         </tool>
       </inputs>
@@ -1436,10 +1437,37 @@
       <inputs>
         <tool>
           <name>ILINK</name>
-          <file> 223 182 263 139 268 273 144 126 47 67 68 104 159 187 173 127 194 164 163 146 72 229 85 243 82 73 157 285 81 132 259 123 74 203 213 270 202 84 78 103 79 108 148 151 220 162 192 147 122 189 111 149 219 112</file>
+          <file> 223 182 263 139 268 273 144 126 47 67 68 104 159 187 173 293 127 194 164 163 146 72 229 85 243 82 73 157 285 81 132 259 123 74 203 213 270 202 84 78 103 79 108 148 151 220 162 192 147 122 189 111 149 219 112</file>
         </tool>
       </inputs>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\power\power.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 295 293</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 294</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 292 48 116 188 99 214 113 282 197 228 175</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 292 48 116 188 99 214 113 282 197 228 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>ILINK</tool>
+    </forcedrebuild>
   </configuration>
 </project>
 

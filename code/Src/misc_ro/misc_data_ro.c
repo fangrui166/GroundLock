@@ -150,7 +150,7 @@ int setBaudRate(uint32_t     value)
 		return -1;
 	}
 	if (!saveMiscDataRO()) {
-		misc_info("setEngineerID success\n");
+		misc_info("setBaudRate success\n");
 		return 0;
 	} else {
 		misc_err(" failed\n");
