@@ -3,7 +3,8 @@
 #include <contiki.h>
 #include "ring_buffer.h"
 #include "hlog.h"
-#define ADC_BUFFER_CURRENT_MAX_LEN  5
+#include "gl_ctrl.h"
+#define ADC_BUFFER_CURRENT_MAX_LEN  15
 #define ADC_AVERAGE_NUM             10
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
@@ -40,10 +41,9 @@ uint32_t ADC_GetCurrentAverage(void)
     }
     if(adc_sample_num >= 5){
         //sample great than 5 is valid
-        adc_sample_num = adc_sample_num - adc_raw_max - adc_raw_min;
-        adc_raw_average = adc_sample_num/(adc_sample_num-2);
-        adc_volatage_mv = ((adc_raw_average << 8) * 891) >> 16;
-        logi("adc_volatage_mv:%d\n", adc_volatage_mv);
+        adc_raw_sum = adc_raw_sum - adc_raw_max - adc_raw_min;
+        adc_raw_average = adc_raw_sum/(adc_sample_num-2);
+        adc_volatage_mv = (adc_raw_average * 825)>>10;//((adc_raw_average << 8) * 891) >> 16;
         adc_current_mA = ((adc_volatage_mv*2)); // I = U/R  , R = 0.5Ω
         adc_current_average = adc_current_mA;
     }
@@ -51,6 +51,7 @@ uint32_t ADC_GetCurrentAverage(void)
         // use last value if sample data not enough
         adc_current_mA = adc_current_average;
     }
+    logi("adc_volatage_mv:%d, %dmA\n", adc_volatage_mv,adc_current_mA);
     return adc_current_mA;
 
 }
@@ -77,7 +78,9 @@ void ADC_StopDMA(void)
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    logi("adc:%d\n", adc_convert_value);
+    if(Ctrl_GetMotorState() != MOTOR_STOP){
+        //logi("adc:%d\n", adc_convert_value);
+    }
     ring_buffer_enqueue(&adc_current_buffer, (uint8_t *) &adc_convert_value);
 }
 
@@ -94,8 +97,8 @@ void ADC_Init(void)
     /**Common config
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
@@ -106,7 +109,7 @@ void ADC_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
   HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 
   /*ADC self calibration*/
@@ -114,15 +117,10 @@ void ADC_Init(void)
       logi("ADC selt calibration Error\r\n");
   }
 
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
 
-  /* DMA interrupt init */
-  /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   ADC_BufferInit();
   ADC_StartDMA();
+  logi("adc initial done\r\n");
 
 }
 

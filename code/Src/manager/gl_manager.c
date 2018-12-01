@@ -15,6 +15,12 @@ uint8_t current_detc_timer_stop = 1;
 uint8_t moving_timeout_timer_stop = 1;
 
 uint8_t action_err_stage = ACTION_ERR_UNKOWN;
+const char *location_str[] = {
+    [LOCK_TOP]    = "top",
+    [LOCK_MIDDLE] = "middle",
+    [LOCK_BOTTOM] = "bottom",
+};
+
 uint8_t Gl_GetLockState(void)
 {
     return gl_lock_state;
@@ -50,13 +56,15 @@ static void Gl_CurrentDetcCallback(void *ptr)
     }
 
     if(!current_detc_timer_stop){
-        ctimer_reset(&current_detc_timer);
+        ctimer_restart(&current_detc_timer);
     }
 }
 static void Gl_MovTimeoutCallback(void *ptr)
 {
     if(!moving_timeout_timer_stop){
+        logw("lock moving timeout\n");
         SPK_Start(MOVTIMEOUT_BUZZER_TIME);
+        Gl_CtrlLock(STOP);
     }
 
 }
@@ -123,13 +131,13 @@ Lock_location Gl_GetLocation(void)
     else{
         location = LOCK_MIDDLE;
     }
+    logi("%s :%s\n", __func__, location_str[location]);
     return location;
 }
 
 int Gl_LockOn(void)
 {
     Lock_location location = Gl_GetLocation();
-    logi("%s location:%d\n", __func__, location);
     switch(location){
         case LOCK_TOP:
             logi("do nothing\n");
@@ -145,7 +153,6 @@ int Gl_LockOn(void)
 int Gl_LockOff(void)
 {
     Lock_location location = Gl_GetLocation();
-    logi("%s location:%d\n", __func__, location);
     switch(location){
         case LOCK_TOP:
         case LOCK_MIDDLE:

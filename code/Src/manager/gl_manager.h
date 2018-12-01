@@ -15,7 +15,7 @@
 #define DOWN_MEET_RESISTANCE_CURRENT_MA       1200
 #define DOWN_BIG_DAMP_CURRENT_MA              1000
 
-#define MOVTIMEOUT_BUZZER_TIME                  1500 // 1.5s
+#define MOVTIMEOUT_BUZZER_TIME                1500 // 1.5s
 typedef enum{
     LOCK,
     UNLOCK,

@@ -3,7 +3,7 @@
 #include "gl_manager.h"
 #include <contiki.h>
 #include "hlog.h"
-static Motor_state_t motor_state;
+static Motor_state_t motor_state = MOTOR_STOP;
 PROCESS(ctrl_process, "ctrl");
 Motor_state_t Ctrl_GetMotorState(void)
 {
@@ -22,19 +22,19 @@ int Ctrl_MotorOff(void)
 int Ctrl_MotorUp(void)
 {
     motor_state = MOTOR_MOVUP;
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL1_GPIO, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL2_GPIO, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL3_GPIO, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL4_GPIO, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL1_GPIO, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL2_GPIO, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL3_GPIO, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL4_GPIO, GPIO_PIN_SET);
     return 0;
 }
 int Ctrl_MotorDown(void)
 {
     motor_state = MOTOR_MOVDOWN;
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL1_GPIO, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL2_GPIO, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL3_GPIO, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(CTRL_PORT, CTRL4_GPIO, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL1_GPIO, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL2_GPIO, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL3_GPIO, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(CTRL_PORT, CTRL4_GPIO, GPIO_PIN_RESET);
     return 0;
 }
 

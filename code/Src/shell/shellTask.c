@@ -9,6 +9,7 @@
 #include "gl_manager.h"
 #include "adc.h"
 #include "spk.h"
+#include "hlog.h"
 
 PROCESS(shell_process, "shell");
 
@@ -52,6 +53,10 @@ int lock_test(int argc, char *argv[], _command_source source)
         }
         else if(!strncmp(argv[1], "off", 3)){
             Gl_LockOff();
+        }
+        else if(!strncmp(argv[1], "get", 3)){
+            Lock_location location = Gl_GetLocation();
+            logi("location:%d\n",location);
         }
     }
     return 0;
