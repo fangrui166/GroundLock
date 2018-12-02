@@ -37,6 +37,7 @@
 #include "uart_debug_drv.h"
 #include "uart_485_drv.h"
 #include "gl_ctrl.h"
+#include "pwm.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -49,6 +50,7 @@
 /******************************************************************************/
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim1;
 
 /**
 * @brief This function handles Non maskable interrupt.
@@ -238,5 +240,21 @@ void EXTI15_10_IRQHandler(void)
     HAL_GPIO_EXTI_IRQHandler(SWUP_GPIO);
     HAL_GPIO_EXTI_IRQHandler(SWDOWN_GPIO);
 }
+
+void TIM1_CC_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&htim1);
+}
+
+void EXTI3_IRQHandler(void)
+{
+    PWM_CSBIN1_IRQHandler();
+}
+
+void EXTI4_IRQHandler(void)
+{
+    PWM_CSBIN2_IRQHandler();
+}
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -324,6 +324,7 @@
           <state>$PROJ_DIR$\..\Src\manager</state>
           <state>$PROJ_DIR$\..\Src\hlog</state>
           <state>$PROJ_DIR$\..\Src\power</state>
+          <state>$PROJ_DIR$\..\Src\pwm</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1022,6 +1023,12 @@
         <name>power</name>
         <file>
           <name>$PROJ_DIR$\..\Src\power\power.c</name>
+        </file>
+      </group>
+      <group>
+        <name>pwm</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\pwm\pwm.c</name>
         </file>
       </group>
       <group>

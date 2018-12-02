@@ -70,6 +70,7 @@ static int Ctrl_PinInit(void)
 
     GPIO_InitStruct.Pin = SWUP_GPIO | SWDOWN_GPIO;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(SW_PORT, &GPIO_InitStruct);
 
@@ -78,6 +79,7 @@ static int Ctrl_PinInit(void)
 
     GPIO_InitStruct.Pin = CTRL1_GPIO | CTRL2_GPIO | CTRL3_GPIO | CTRL4_GPIO;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(CTRL_PORT, &GPIO_InitStruct);
     Ctrl_MotorOff();

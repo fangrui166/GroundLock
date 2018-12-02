@@ -59,6 +59,7 @@
 #include "gl_manager.h"
 #include "rom_info.h"
 #include "hlog.h"
+#include "pwm.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -141,6 +142,7 @@ int main(void)
   SPK_Init();
   Ctrl_Init();
   Gl_ManagerInit();
+  PWM_Init();
 
   /* USER CODE END 2 */
   wdt_init();
@@ -220,7 +222,7 @@ void SystemClock_Config(void)
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, 7, 0);
 }
 
 

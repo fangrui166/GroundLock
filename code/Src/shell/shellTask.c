@@ -13,6 +13,7 @@
 #include "misc_data_ro.h"
 #include "misc_data_rw.h"
 #include "power.h"
+#include "pwm.h"
 
 PROCESS(shell_process, "shell");
 
@@ -59,7 +60,7 @@ int lock_test(int argc, char *argv[], _command_source source)
         }
         else if(!strncmp(argv[1], "get", 3)){
             Lock_location location = Gl_GetLocation();
-            logi("location:%d\n",location);
+            logi("location:%d.\n",location);
         }
     }
     return 0;
@@ -97,6 +98,18 @@ int power_test(int argc, char *argv[], _command_source source)
     }
     return 0;
 }
+int pwm_test(int argc, char *argv[], _command_source source)
+{
+    if(argc == 2){
+        if(!strncmp(argv[1], "a", 1)){
+            PWM_ChannelAStart();
+        }
+        else if(!strncmp(argv[1], "b", 1)){
+            PWM_ChannelBStart();
+        }
+    }
+    return 0;
+}
 int cmd_help(int argc, char * argv[], _command_source source);
 const MONITOR_COMMAND commandTable[] =
 {
@@ -106,6 +119,7 @@ const MONITOR_COMMAND commandTable[] =
     {"lock",    lock_test},
     {"misc",    misc_test},
     {"pm",      power_test},
+    {"pwm",     pwm_test},
     {"?",       cmd_help}, //This must be the last command
 };
 const unsigned long ulNumberOfCommands = (sizeof(commandTable) / sizeof(commandTable[0]));

@@ -13,7 +13,7 @@ static RingBuffer_t adc_current_buffer;
 uint32_t adc_convert_value;
 
 uint32_t adc_current_average;
-
+static uint8_t adc_start = 0;
 uint32_t ADC_GetCurrentAverage(void)
 {
     uint8_t  adc_sample_num = 0;
@@ -69,11 +69,15 @@ int ADC_GetRawData(uint16_t * adc_raw_data)
 
 void ADC_StartDMA(void)
 {
+    if(adc_start) return;
+    adc_start = 1;
     HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_convert_value,1);
 }
 
 void ADC_StopDMA(void)
 {
+    if(!adc_start) return;
+    adc_start = 0;
 	HAL_ADC_Stop_DMA(&hadc1);
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
@@ -119,7 +123,7 @@ void ADC_Init(void)
 
 
   ADC_BufferInit();
-  ADC_StartDMA();
+  adc_start = 0;
   logi("adc initial done\r\n");
 
 }

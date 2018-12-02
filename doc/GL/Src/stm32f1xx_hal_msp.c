@@ -230,10 +230,10 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
 
 }
 
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
+void HAL_TIM_OC_MspInit(TIM_HandleTypeDef* htim_oc)
 {
 
-  if(htim_pwm->Instance==TIM1)
+  if(htim_oc->Instance==TIM1)
   {
   /* USER CODE BEGIN TIM1_MspInit 0 */
 
@@ -273,10 +273,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
 
 }
 
-void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm)
+void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef* htim_oc)
 {
 
-  if(htim_pwm->Instance==TIM1)
+  if(htim_oc->Instance==TIM1)
   {
   /* USER CODE BEGIN TIM1_MspDeInit 0 */
 

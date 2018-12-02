@@ -145,6 +145,12 @@
         </file>
       </group>
       <group>
+        <name>pwm</name>
+        <file>
+          <name>$PROJ_DIR$\..\Src\pwm\pwm.c</name>
+        </file>
+      </group>
+      <group>
         <name>shell</name>
         <file>
           <name>$PROJ_DIR$\..\Src\shell\shellTask.c</name>

@@ -101,16 +101,19 @@ static void Gl_MovTimeoutStop(void)
 int Gl_CtrlLock(uint8_t action)
 {
     if(action == LOCK){
+        ADC_StartDMA();
         Gl_CurrentDetcStart();
         Gl_MovTimeoutStart();
         Ctrl_MotorUp();
     }
     else if(action == UNLOCK){
+        ADC_StartDMA();
         Gl_CurrentDetcStart();
         Gl_MovTimeoutStart();
         Ctrl_MotorDown();
     }
     else if(action == STOP){
+        ADC_StopDMA();
         Gl_CurrentDetcStop();
         Gl_MovTimeoutStop();
         Ctrl_MotorOff();
