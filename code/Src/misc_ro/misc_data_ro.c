@@ -157,4 +157,55 @@ int setBaudRate(uint32_t     value)
 		return -1;
 	}
 }
-
+int getLimitedCurrent(uint16_t *value, current_limited_t type)
+{
+	if (!loadMiscDataRO()) {
+        switch(type){
+            case UP_RESISTANCE:
+                *value = MISC_Data_RO.up_meet_resistance_current;
+                break;
+            case UP_GIG_DAMP:
+                *value = MISC_Data_RO.up_big_damp_current;
+                break;
+            case DOWN_RESISTANCE:
+                *value = MISC_Data_RO.down_meet_resistance_current;
+                break;
+            case DOWN_GIG_DAMP:
+                *value = MISC_Data_RO.down_big_damp_current;
+                break;
+        }
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+int setLimitedCurrent(uint16_t     value,  current_limited_t type)
+{
+	if (!loadMiscDataRO()) {
+        switch(type){
+            case UP_RESISTANCE:
+                MISC_Data_RO.up_meet_resistance_current = value;
+                break;
+            case UP_GIG_DAMP:
+                MISC_Data_RO.up_big_damp_current = value;
+                break;
+            case DOWN_RESISTANCE:
+                MISC_Data_RO.down_meet_resistance_current = value;
+                break;
+            case DOWN_GIG_DAMP:
+                MISC_Data_RO.down_big_damp_current = value;
+                break;
+        }
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+	if (!saveMiscDataRO()) {
+		misc_info("setLimitedCurrent success\n");
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}

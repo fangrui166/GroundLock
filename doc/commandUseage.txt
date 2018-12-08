@@ -1,0 +1,20 @@
+UART2  115200
+
+pwm a 20  // a 发pwm 40kHz 20个波形后停止， 数字可任意
+pwm b 20
+
+lock on
+lock off
+lock get
+
+spk 2  // 蜂鸣器开 2 ms 
+
+pm reboot //重启
+
+cur set/get [upr/upd/downd/dwonr] [xxx]
+	eg:
+			cur set upr 1500        // 设置上升遇阻电流值 1500mA
+			cur set upd 1200		// 设置上升阻尼过大电流值 1200mA
+			
+			cur get downd           // 读取下降阻尼过大值
+			cur get downr			// 读取下降遇阻值

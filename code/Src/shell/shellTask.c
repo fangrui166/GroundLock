@@ -14,6 +14,7 @@
 #include "misc_data_rw.h"
 #include "power.h"
 #include "pwm.h"
+#include "misc_data_ro.h"
 
 PROCESS(shell_process, "shell");
 
@@ -46,7 +47,10 @@ int uart485_test(int argc, char *argv[], _command_source source)
 }
 int spk_test(int argc, char *argv[], _command_source source)
 {
-    SPK_Start(100);
+    if(argc == 2){
+        int time = atoi(argv[1]);
+        SPK_Start(time);
+    }
     return 0;
 }
 int lock_test(int argc, char *argv[], _command_source source)
@@ -100,14 +104,61 @@ int power_test(int argc, char *argv[], _command_source source)
 }
 int pwm_test(int argc, char *argv[], _command_source source)
 {
-    if(argc == 2){
+    if(argc == 3){
+        uint32_t  pwm_count = atoi(argv[2]);
         if(!strncmp(argv[1], "a", 1)){
-            PWM_ChannelAStart();
+            PWM_ChannelAStart(pwm_count);
         }
         else if(!strncmp(argv[1], "b", 1)){
-            PWM_ChannelBStart();
+            PWM_ChannelBStart(pwm_count);
         }
     }
+    return 0;
+}
+int current_test(int argc, char *argv[], _command_source source)
+{
+    if(argc == 4){
+        if(!strncmp(argv[1], "set", 3)){
+            int  value = atoi(argv[3]);
+            current_limited_t type;
+            if(!strncmp(argv[2], "upr", 3)){
+                type = UP_RESISTANCE;
+            }
+            else if(!strncmp(argv[2], "upd", 3)){
+                type = UP_GIG_DAMP;
+            }
+            else if(!strncmp(argv[2], "downr", 5)){
+                type = DOWN_RESISTANCE;
+            }
+            else if(!strncmp(argv[2], "downd", 5)){
+                type = DOWN_GIG_DAMP;
+            }
+            Gl_UpdateLimitedCurrent((uint16_t)value, type);
+        }
+    }
+    else if(argc == 3){
+        if(!strncmp(argv[1], "get", 3)){
+            current_limited_t type;
+            if(!strncmp(argv[2], "upr", 3)){
+                type = UP_RESISTANCE;
+            }
+            else if(!strncmp(argv[2], "upd", 3)){
+                type = UP_GIG_DAMP;
+            }
+            else if(!strncmp(argv[2], "downd", 5)){
+                type = DOWN_RESISTANCE;
+            }
+            else if(!strncmp(argv[2], "downd", 5)){
+                type = DOWN_GIG_DAMP;
+            }
+            uint16_t stroe_value;
+            uint16_t use_value;
+            getLimitedCurrent(&stroe_value, type);
+            Gl_GetLimitedCurrent(&use_value, type);
+            logi("limited stroe:%d, use:%d\n", stroe_value, use_value);
+        }
+    }
+
     return 0;
 }
 int cmd_help(int argc, char * argv[], _command_source source);
@@ -120,6 +171,7 @@ const MONITOR_COMMAND commandTable[] =
     {"misc",    misc_test},
     {"pm",      power_test},
     {"pwm",     pwm_test},
+    {"cur",     current_test},
     {"?",       cmd_help}, //This must be the last command
 };
 const unsigned long ulNumberOfCommands = (sizeof(commandTable) / sizeof(commandTable[0]));

@@ -1,7 +1,8 @@
 #ifndef __GL_MANAGER_H__
 #define __GL_MANAGER_H__
 
-#include <stdint.h>
+#include <contiki.h>
+#include "misc_data_ro.h"
 #define LOCK_STATE_LOCKED               0x00
 #define LOCK_STATE_UNLOCKED             0x01
 #define LOCK_STATE_MOVING               0x88
@@ -42,5 +43,7 @@ Lock_location Gl_GetLocation(void);
 int Gl_LockOn(void);
 int Gl_LockOff(void);
 int Gl_ManagerInit(void);
+int Gl_UpdateLimitedCurrent(uint16_t value, current_limited_t type);
+int Gl_GetLimitedCurrent(uint16_t *value, current_limited_t type);
 
 #endif

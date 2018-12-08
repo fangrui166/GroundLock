@@ -4,6 +4,7 @@
 #include "stm32f1xx_hal.h"
 #include "uart_485_drv.h"
 #include "unit.h"
+#include "gl_manager.h"
 
 #define MAX_RESPONSE_BUF_LEN            50
 static uint8_t response_buf[MAX_RESPONSE_BUF_LEN] = {0};
@@ -73,17 +74,19 @@ int TRx485_LockOn(void)
 {
     //todo lock on
     printf("%s\n",__func__);
+    Gl_LockOn();
     return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_LOCK_ON, NULL, 0);
 }
 int TRx485_LockOff(void)
 {
     //todo lock on
-
+    Gl_LockOff();
     return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_LOCK_OFF, NULL, 0);
 }
 int TRx485_GetLockStatus(void)
 {
     //todo lock on
+    Gl_GetLockState();
 
     return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_GET_LOCK_STATUS, NULL, 0);
 }

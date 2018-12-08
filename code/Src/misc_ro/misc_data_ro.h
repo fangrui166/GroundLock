@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <contiki.h>
 #include <stdbool.h>
 #include "integer.h"
 
@@ -31,11 +31,21 @@ typedef enum
 #define PROP_SERIALNUMBER_LENTH                    (16)
 #define PROP_HWVERSION_LENTH                       (16)
 
+typedef enum{
+    UP_RESISTANCE,
+    UP_GIG_DAMP,
+    DOWN_RESISTANCE,
+    DOWN_GIG_DAMP,
+}current_limited_t;
 typedef struct
 {
     char serialNumber[PROP_SERIALNUMBER_LENTH];
     char HwVersion[PROP_HWVERSION_LENTH];
     uint32_t BaudRate;
+    uint16_t up_meet_resistance_current;
+    uint16_t up_big_damp_current;
+    uint16_t down_meet_resistance_current;
+    uint16_t down_big_damp_current;
 }
 MISC_DataTypeDefRO;
 
@@ -50,6 +60,8 @@ int getHwVersion(char *value);
 int setHwVersion(const char *value, int length);
 int getBaudRate(uint32_t *value);
 int setBaudRate(uint32_t     value);
+int getLimitedCurrent(uint16_t *value, current_limited_t type);
+int setLimitedCurrent(uint16_t     value,  current_limited_t type);
 
 
 #ifdef __cplusplus

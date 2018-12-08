@@ -2,25 +2,28 @@
 #include "hlog.h"
 #include "stm32f1xx_hal.h"
 
-#define MAX_PWM_COUNT               9
 TIM_HandleTypeDef htim1;
-static uint8_t channel_count_a, channel_count_b;
+static uint32_t channel_count_a, channel_count_b;
 static uint8_t channel_a_start, channel_b_start;
-int PWM_ChannelAStart(void)
+static volatile uint32_t max_pwm_count_a = 9;
+static volatile uint32_t max_pwm_count_b = 9;
+int PWM_ChannelAStart(uint32_t pwm_count)
 {
     if(channel_a_start) return 0;
     channel_a_start = 1;
     logi("%s\n", __func__);
     channel_count_a = 0;
+    max_pwm_count_a = pwm_count;
     HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
     return 0;
 }
-int PWM_ChannelBStart(void)
+int PWM_ChannelBStart(uint32_t pwm_count)
 {
     if(channel_b_start) return 0;
     channel_b_start = 1;
     logi("%s\n", __func__);
     channel_count_b = 0;
+    max_pwm_count_b = pwm_count;
     HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_4);
     return 0;
 }
@@ -30,7 +33,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
     //logi("%s\n", __func__);
     if(htim->Instance == htim1.Instance){
         if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1){
-            if(++channel_count_a >= MAX_PWM_COUNT){
+            if(++channel_count_a >= max_pwm_count_a){
                 HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
                 channel_count_a = 0;
                 channel_a_start = 0;
@@ -38,7 +41,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
             }
         }
         if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4){
-            if(++channel_count_b >= MAX_PWM_COUNT){
+            if(++channel_count_b >= max_pwm_count_b){
                 HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_4);
                 channel_count_b = 0;
                 channel_b_start = 0;
@@ -52,10 +55,10 @@ void PWM_CSBIN1_IRQHandler(void)
     if (__HAL_GPIO_EXTI_GET_IT(CSB_IN1) != RESET){
         __HAL_GPIO_EXTI_CLEAR_IT(CSB_IN1);
         if(HAL_GPIO_ReadPin(CSB_PORT, CSB_IN1)){
-            logi("+\n");
+            //logi("+\n");
         }
         else{
-            logi("-\n");
+            //logi("-\n");
         }
     }
 
@@ -65,10 +68,10 @@ void PWM_CSBIN2_IRQHandler(void)
     if (__HAL_GPIO_EXTI_GET_IT(CSB_IN2) != RESET){
         __HAL_GPIO_EXTI_CLEAR_IT(CSB_IN2);
         if(HAL_GPIO_ReadPin(CSB_PORT, CSB_IN2)){
-            logi(",\n");
+            //logi(",\n");
         }
         else{
-            logi(".\n");
+            //logi(".\n");
         }
     }
 }
