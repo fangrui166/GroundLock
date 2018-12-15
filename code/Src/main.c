@@ -60,6 +60,7 @@
 #include "rom_info.h"
 #include "hlog.h"
 #include "pwm.h"
+#include "global.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -131,6 +132,7 @@ int main(void)
   flash_init();
   DebugUart_Init();
   logi("%s build @ %s. version:%s\n", ROM_info, ROM_buildtime, ROM_version);
+  global_variable_init();
   rom_info();
   hlog_init();
   TRx485Uart_Init();

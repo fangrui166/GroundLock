@@ -53,6 +53,16 @@ static BOOL misc_is_ascii_char(char char_key)
 
 	return FALSE;
 }
+int getMiscDataRO(MISC_DataTypeDefRO **MiscDataRO)
+{
+	if (!loadMiscDataRO()) {
+		*MiscDataRO = &MISC_Data_RO;
+		return 0;
+	} else {
+		misc_err("getMiscDataRO failed\n");
+		return -1;
+	}
+}
 
 int getSerialNumber(char *value)
 {
@@ -157,6 +167,35 @@ int setBaudRate(uint32_t     value)
 		return -1;
 	}
 }
+
+int getLocalAddr(uint8_t *value)
+{
+	if (!loadMiscDataRO()) {
+		*value = MISC_Data_RO.local_addr;
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+
+int setLocalAddr(uint8_t     value)
+{
+	if (!loadMiscDataRO()) {
+		MISC_Data_RO.local_addr = value;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+	if (!saveMiscDataRO()) {
+		misc_info("setLocalAddr success\n");
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+
 int getLimitedCurrent(uint16_t *value, current_limited_t type)
 {
 	if (!loadMiscDataRO()) {

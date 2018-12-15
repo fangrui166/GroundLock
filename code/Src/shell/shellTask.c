@@ -79,6 +79,11 @@ int misc_test(int argc, char *argv[], _command_source source)
                 ret = getBaudRate(&baudrate);
                 logi("BaudRate:%d\n", baudrate);
             }
+            else if(!strncasecmp(argv[2], "addr", 4)){
+                uint8_t local_addr;
+                ret = getLocalAddr(&local_addr);
+                logi("local_addr:%d\n", local_addr);
+            }
         }
     }
     else if(argc == 4){
@@ -87,6 +92,11 @@ int misc_test(int argc, char *argv[], _command_source source)
                 uint32_t baudrate = atoi(argv[3]);
                 logi("setBaudRate:%d\n", baudrate);
                 ret = setBaudRate(baudrate);
+            }
+            else if(!strncasecmp(argv[2], "addr", 4)){
+                uint8_t local_addr = atoi(argv[3]);
+                logi("setLocalAddr:%d\n", local_addr);
+                ret = setLocalAddr(local_addr);
             }
         }
     }
@@ -145,7 +155,7 @@ int current_test(int argc, char *argv[], _command_source source)
             else if(!strncmp(argv[2], "upd", 3)){
                 type = UP_GIG_DAMP;
             }
-            else if(!strncmp(argv[2], "downd", 5)){
+            else if(!strncmp(argv[2], "downr", 5)){
                 type = DOWN_RESISTANCE;
             }
             else if(!strncmp(argv[2], "downd", 5)){

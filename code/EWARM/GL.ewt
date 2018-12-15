@@ -187,6 +187,9 @@
         </file>
       </group>
       <file>
+        <name>$PROJ_DIR$\..\Src\global.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>

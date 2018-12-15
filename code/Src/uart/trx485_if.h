@@ -7,7 +7,6 @@
 #define TX_CMD_RESPONSE_ERROR       0x5B
 #define TRX_CMD_TAIL                0xAA
 
-#define DEFAULT_LOCAL_ADDR          0x00
 
 #define RX_CMD_LOCK_ON                      0x01
 #define RX_CMD_LOCK_OFF                     0x02

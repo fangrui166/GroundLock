@@ -41,6 +41,7 @@ typedef struct
 {
     char serialNumber[PROP_SERIALNUMBER_LENTH];
     char HwVersion[PROP_HWVERSION_LENTH];
+    uint8_t local_addr;
     uint32_t BaudRate;
     uint16_t up_meet_resistance_current;
     uint16_t up_big_damp_current;
@@ -53,7 +54,7 @@ MISC_DataTypeDefRO;
 
 int loadMiscDataRORO(void);
 int saveMiscData(void);
-
+int getMiscDataRO(MISC_DataTypeDefRO **MiscDataRO);
 int getSerialNumber(char *value);
 int setSerialNumber(const char *value, int length);
 int getHwVersion(char *value);
@@ -62,6 +63,8 @@ int getBaudRate(uint32_t *value);
 int setBaudRate(uint32_t     value);
 int getLimitedCurrent(uint16_t *value, current_limited_t type);
 int setLimitedCurrent(uint16_t     value,  current_limited_t type);
+int getLocalAddr(uint8_t *value);
+int setLocalAddr(uint8_t     value);
 
 
 #ifdef __cplusplus

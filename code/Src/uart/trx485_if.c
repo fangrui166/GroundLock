@@ -5,10 +5,10 @@
 #include "uart_485_drv.h"
 #include "unit.h"
 #include "gl_manager.h"
+#include "global.h"
 
 #define MAX_RESPONSE_BUF_LEN            50
 static uint8_t response_buf[MAX_RESPONSE_BUF_LEN] = {0};
-static uint8_t local_addr = 0;
 Frame_t frame_tx ={
     .head = TX_CMD_RESPONSE_NORMAL,
     .addr = DEFAULT_LOCAL_ADDR,
@@ -21,7 +21,6 @@ Frame_t frame_tx ={
 
 int TRx485_CtrlPinInit(void)
 {
-
     GPIO_InitTypeDef GPIO_InitStruct;
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_5;
@@ -86,9 +85,9 @@ int TRx485_LockOff(void)
 int TRx485_GetLockStatus(void)
 {
     //todo lock on
-    Gl_GetLockState();
+    uint8_t status = Gl_GetLockState();
 
-    return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_GET_LOCK_STATUS, NULL, 0);
+    return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_GET_LOCK_STATUS, &status, sizeof(status));
 }
 int TRx485_SetUltrasoundPeriod(void)
 {
@@ -154,8 +153,7 @@ int TRx485_SetAddr(void)
 int TRx485_GetAddr(void)
 {
     //todo lock on
-
-    return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_GET_ADDR, NULL, 0);
+    return cmd_respond(TX_CMD_RESPONSE_NORMAL, RX_CMD_GET_ADDR, &local_addr, sizeof(local_addr));
 }
 int TRx485_SetBaudRate(void)
 {

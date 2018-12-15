@@ -8,6 +8,7 @@
 #include "shellTask.h"
 #include "trx485_if.h"
 #include "hlog.h"
+#include "global.h"
 
 #define TRX485_UART_RX_BUFFER_SIZE           255 // you'd better set as 255 to make code simply
 #define TRX485_UART_TX_BUFFER_SIZE           255
@@ -58,7 +59,7 @@ static void TRx485Uart_RxInit(void){
 void TRx485Uart_Init(void)
 {
     trx485_uart.Instance = TRX485_UART_PORT;
-    trx485_uart.Init.BaudRate = 9600;
+    trx485_uart.Init.BaudRate = BaudRate;
     trx485_uart.Init.WordLength = UART_WORDLENGTH_8B;
     trx485_uart.Init.StopBits = UART_STOPBITS_1;
     trx485_uart.Init.Parity = UART_PARITY_NONE;
