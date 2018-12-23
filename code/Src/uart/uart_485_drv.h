@@ -6,7 +6,14 @@
 #define TRX485_UART_PORT         USART1
 #define TRX485UART_IRQn          USART1_IRQn
 
-
+typedef enum
+{
+    BAUDRATE_9600,
+    BAUDRATE_4800,
+    BAUDRATE_2400,
+    BAUDRATE_1200,
+    BAUDRATE_600,
+}BAUDRATE_t;
 void TRx485Uart_Init(void);
 void TRx485Uart_IRQHandler(void);
 int TRx485Uart_Printf(char *fmt, ...);

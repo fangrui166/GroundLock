@@ -15,6 +15,7 @@
 #include "power.h"
 #include "pwm.h"
 #include "misc_data_ro.h"
+#include "distance_manager.h"
 
 PROCESS(shell_process, "shell");
 
@@ -84,6 +85,16 @@ int misc_test(int argc, char *argv[], _command_source source)
                 ret = getLocalAddr(&local_addr);
                 logi("local_addr:%d\n", local_addr);
             }
+            else if(!strncasecmp(argv[2], "CSB_TIME", 8)){
+                uint32_t csb_time;
+                ret = getCSBTIME(&csb_time);
+                logi("csb_time:%d\n", csb_time);
+            }
+            else if(!strncasecmp(argv[2], "CSB_NUM", 7)){
+                uint32_t csb_num;
+                ret = getCSB_NUM_MAX(&csb_num);
+                logi("csb_num:%d\n", csb_num);
+            }
         }
     }
     else if(argc == 4){
@@ -97,6 +108,16 @@ int misc_test(int argc, char *argv[], _command_source source)
                 uint8_t local_addr = atoi(argv[3]);
                 logi("setLocalAddr:%d\n", local_addr);
                 ret = setLocalAddr(local_addr);
+            }
+            else if(!strncasecmp(argv[2], "CSB_TIME", 8)){
+                uint32_t csb_time = atoi(argv[3]);
+                logi("setCSBTIME:%d\n", csb_time);
+                ret = setCSBTIME(csb_time);
+            }
+            else if(!strncasecmp(argv[2], "CSB_NUM", 7)){
+                uint32_t csb_num = atoi(argv[3]);
+                logi("setCSB_NUM_MAX:%d\n", csb_num);
+                ret = setCSB_NUM_MAX(csb_num);
             }
         }
     }
@@ -121,6 +142,14 @@ int pwm_test(int argc, char *argv[], _command_source source)
         }
         else if(!strncmp(argv[1], "b", 1)){
             PWM_ChannelBStart(pwm_count);
+        }
+    }
+    else if(argc == 2){
+        if(!strncmp(argv[1], "start", 5)){
+            Dist_StartMesure();
+        }
+        else if(!strncmp(argv[1], "stop", 4)){
+            Dist_StopMesure();
         }
     }
     return 0;

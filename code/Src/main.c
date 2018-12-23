@@ -61,6 +61,7 @@
 #include "hlog.h"
 #include "pwm.h"
 #include "global.h"
+#include "distance_manager.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -145,6 +146,7 @@ int main(void)
   Ctrl_Init();
   Gl_ManagerInit();
   PWM_Init();
+  Dist_Init();
 
   /* USER CODE END 2 */
   wdt_init();

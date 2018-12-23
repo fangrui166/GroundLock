@@ -2,6 +2,7 @@
 #include "stm32f1xx_hal.h"
 #include <contiki.h>
 #include <sys/ctimer.h>
+#include "global.h"
 
 
 static struct ctimer spk_timer;
@@ -13,6 +14,7 @@ static void SPK_TimeoutCallback(void *ptr)
 
 int SPK_Start(uint32_t timeout_ms)
 {
+    if(spk_switch == SPK_SWITCH_OFF) return 0;
     HAL_GPIO_WritePin(SPK_PORT, SPK_GPIO, GPIO_PIN_SET);
     ctimer_set(&spk_timer, timeout_ms, SPK_TimeoutCallback, NULL);
     return 0;

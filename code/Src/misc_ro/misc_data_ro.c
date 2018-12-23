@@ -248,3 +248,60 @@ int setLimitedCurrent(uint16_t     value,  current_limited_t type)
 		return -1;
 	}
 }
+int getCSBTIME(uint32_t *value)
+{
+	if (!loadMiscDataRO()) {
+		*value = MISC_Data_RO.CSB_TIME;
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+
+int setCSBTIME(uint32_t     value)
+{
+	if (!loadMiscDataRO()) {
+		MISC_Data_RO.CSB_TIME = value;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+	if (!saveMiscDataRO()) {
+		misc_info("setCSBTIME success\n");
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+
+int getCSB_NUM_MAX(uint32_t *value)
+{
+	if (!loadMiscDataRO()) {
+		*value = MISC_Data_RO.CSB_NUM_MAX;
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+
+int setCSB_NUM_MAX(uint32_t     value)
+{
+	if (!loadMiscDataRO()) {
+		MISC_Data_RO.CSB_NUM_MAX = value;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+	if (!saveMiscDataRO()) {
+		misc_info("setCSB_NUM_MAX success\n");
+		return 0;
+	} else {
+		misc_err(" failed\n");
+		return -1;
+	}
+}
+
+

@@ -123,6 +123,9 @@
       <group>
         <name>manager</name>
         <file>
+          <name>$PROJ_DIR$\..\Src\manager\distance_manager.c</name>
+        </file>
+        <file>
           <name>$PROJ_DIR$\..\Src\manager\gl_manager.c</name>
         </file>
       </group>

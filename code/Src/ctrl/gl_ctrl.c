@@ -3,6 +3,7 @@
 #include "gl_manager.h"
 #include <contiki.h>
 #include "hlog.h"
+#include "distance_manager.h"
 static Motor_state_t motor_state = MOTOR_STOP;
 PROCESS(ctrl_process, "ctrl");
 Motor_state_t Ctrl_GetMotorState(void)
@@ -114,11 +115,13 @@ PROCESS_THREAD(ctrl_process, ev, data)
             else if((status == CTRL_STATUS_UP) && (motor_state == MOTOR_MOVUP)){
                 logi("arrived top\n");
                 Gl_CtrlLock(STOP);
+                Dist_StopMesure();
                 Gl_SetLockState(LOCK_STATE_LOCKED);
             }
             else if((status == CTRL_STATUS_DOWN) && (motor_state == MOTOR_MOVDOWN)){
                 logi("arrived bottom\n");
                 Gl_CtrlLock(STOP);
+                Dist_StartMesure();
                 if(Gl_GetActionErrStage() == ACTION_ERR_UP_ERR){
                     Gl_SetLockState(LOCK_STATE_MISSUPSUCCEDOWN);
                 }

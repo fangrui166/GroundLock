@@ -50,8 +50,9 @@
 /******************************************************************************/
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
+#ifdef USE_PWM_TRGGER
 extern TIM_HandleTypeDef htim1;
-
+#endif
 /**
 * @brief This function handles Non maskable interrupt.
 */
@@ -241,11 +242,12 @@ void EXTI15_10_IRQHandler(void)
     HAL_GPIO_EXTI_IRQHandler(SWDOWN_GPIO);
 }
 
+#ifdef USE_PWM_TRGGER
 void TIM1_CC_IRQHandler(void)
 {
     HAL_TIM_IRQHandler(&htim1);
 }
-
+#endif
 void EXTI3_IRQHandler(void)
 {
     PWM_CSBIN1_IRQHandler();

@@ -47,6 +47,9 @@ typedef struct
     uint16_t up_big_damp_current;
     uint16_t down_meet_resistance_current;
     uint16_t down_big_damp_current;
+    uint32_t CSB_TIME;
+    uint32_t CSB_NUM_MAX;
+    uint8_t spk_switch;
 }
 MISC_DataTypeDefRO;
 
@@ -65,6 +68,10 @@ int getLimitedCurrent(uint16_t *value, current_limited_t type);
 int setLimitedCurrent(uint16_t     value,  current_limited_t type);
 int getLocalAddr(uint8_t *value);
 int setLocalAddr(uint8_t     value);
+int getCSBTIME(uint32_t *value);
+int setCSBTIME(uint32_t     value);
+int getCSB_NUM_MAX(uint32_t *value);
+int setCSB_NUM_MAX(uint32_t     value);
 
 
 #ifdef __cplusplus

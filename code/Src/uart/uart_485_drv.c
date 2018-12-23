@@ -9,6 +9,7 @@
 #include "trx485_if.h"
 #include "hlog.h"
 #include "global.h"
+#include "unit.h"
 
 #define TRX485_UART_RX_BUFFER_SIZE           255 // you'd better set as 255 to make code simply
 #define TRX485_UART_TX_BUFFER_SIZE           255
@@ -241,14 +242,11 @@ PROCESS_THREAD(TRx485Uart_Handler, ev, data)
                 uint8_t data[TRX485_UART_RX_BUFFER_SIZE] = {0};
                 uint8_t len = TRx485Uart_RxBufLen(trx485_rx.item_rd_idx);
                 TRx485Uart_RxBufRead(data,len);
-                if(len == 0) {
-                    if(trx485_rx.item_rd_idx != trx485_rx.item_wr_idx)
-                        continue;
-                    else
-                        break;
+                if(len ) {
+                    buffer_dump(data, len);
+                    //logi("%s",data);
+                    TRx485_ParsePacket(data,len);
                 }
-                TRx485_ParsePacket(data,len);
-                logi("%s",data);
             }while(trx485_rx.item_rd_idx != trx485_rx.item_wr_idx);
         }
     }
