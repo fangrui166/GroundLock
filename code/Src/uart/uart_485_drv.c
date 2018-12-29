@@ -24,9 +24,9 @@ typedef struct{
 }item_idx_range_t;
 typedef struct {
     uint8_t * ringbuf;
-    uint8_t rxbuf_wr_idx;
-    uint8_t item_wr_idx;
-    uint8_t item_rd_idx;
+    volatile uint8_t rxbuf_wr_idx;
+    volatile uint8_t item_wr_idx;
+    volatile uint8_t item_rd_idx;
     item_idx_range_t item_idx_range[TRX485_UART_RX_BUFFER_CACHE];
 }rx_ring_buf_t;
 static rx_ring_buf_t trx485_rx = {
@@ -78,10 +78,12 @@ void TRx485Uart_Init(void)
 }
 static void TRx485Uart_FrameDone(void)
 {
-    trx485_rx.item_idx_range[trx485_rx.item_wr_idx].end = trx485_rx.rxbuf_wr_idx-1;
-    if(((trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE) != trx485_rx.item_rd_idx){
+    uint8_t wr_idx = trx485_rx.rxbuf_wr_idx;
+    uint8_t rd_idx = trx485_rx.item_rd_idx;
+    trx485_rx.item_idx_range[trx485_rx.item_wr_idx].end = wr_idx-1;
+    if(((trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE) != rd_idx){
         trx485_rx.item_wr_idx = (trx485_rx.item_wr_idx+1)%TRX485_UART_RX_BUFFER_CACHE;
-        trx485_rx.item_idx_range[trx485_rx.item_wr_idx].start = trx485_rx.rxbuf_wr_idx;
+        trx485_rx.item_idx_range[trx485_rx.item_wr_idx].start = wr_idx;
     }
     process_poll(&TRx485Uart_Handler);
 }
@@ -93,6 +95,9 @@ void TRx485Uart_IRQHandler(void)
     uint32_t cr3its     = READ_REG(huart->Instance->CR3);
     uint32_t errorflags = 0x00U;
     uint32_t dmarequest = 0x00U;
+    uint8_t rxbuf_wr_idx = trx485_rx.rxbuf_wr_idx;
+
+    uint32_t idle_flag =__HAL_UART_GET_FLAG(huart,UART_FLAG_IDLE);
 
     errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
 
@@ -100,13 +105,12 @@ void TRx485Uart_IRQHandler(void)
     if (errorflags == RESET){
       /* UART in mode Receiver ---------------------------------------------------*/
       if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET)){
-        trx485_rx.ringbuf[trx485_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
-        return;
-      }
-      else if((isrflags & USART_SR_IDLE) != RESET){
-        dmarequest = (uint8_t)(huart->Instance->SR);
-        dmarequest = (uint8_t)(huart->Instance->DR);
-        TRx485Uart_FrameDone();
+        trx485_rx.ringbuf[rxbuf_wr_idx] = (uint8_t)(huart->Instance->DR);
+        trx485_rx.rxbuf_wr_idx ++;
+        if(idle_flag != RESET){
+            __HAL_UART_CLEAR_IDLEFLAG(huart);
+            TRx485Uart_FrameDone();
+        }
         return;
       }
     }
@@ -146,7 +150,8 @@ void TRx485Uart_IRQHandler(void)
           /* UART in mode Receiver -----------------------------------------------*/
           if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
           {
-              trx485_rx.ringbuf[trx485_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
+              trx485_rx.ringbuf[rxbuf_wr_idx] = (uint8_t)(huart->Instance->DR);
+              trx485_rx.rxbuf_wr_idx ++;
           }
 
           /* If Overrun error occurs, or if any error occurs in DMA mode reception,
@@ -178,6 +183,10 @@ void TRx485Uart_IRQHandler(void)
 
       } /* End if some error occurs */
 
+       if(idle_flag != RESET){
+           __HAL_UART_CLEAR_IDLEFLAG(huart);
+           TRx485Uart_FrameDone();
+       }
 
 
 }
@@ -238,16 +247,18 @@ PROCESS_THREAD(TRx485Uart_Handler, ev, data)
         PROCESS_YIELD();
         if(ev == PROCESS_EVENT_POLL )
         {
-            do{
+            uint8_t rd_id = trx485_rx.item_rd_idx;
+            while(rd_id != trx485_rx.item_wr_idx){
                 uint8_t data[TRX485_UART_RX_BUFFER_SIZE] = {0};
-                uint8_t len = TRx485Uart_RxBufLen(trx485_rx.item_rd_idx);
+                uint8_t len = TRx485Uart_RxBufLen(rd_id);
                 TRx485Uart_RxBufRead(data,len);
-                if(len ) {
+                rd_id = ((rd_id+1)%TRX485_UART_RX_BUFFER_CACHE);
+                if(len) {
                     buffer_dump(data, len);
                     //logi("%s",data);
                     TRx485_ParsePacket(data,len);
                 }
-            }while(trx485_rx.item_rd_idx != trx485_rx.item_wr_idx);
+            };
         }
     }
     PROCESS_END();

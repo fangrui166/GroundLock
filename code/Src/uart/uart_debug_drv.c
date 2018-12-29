@@ -19,9 +19,9 @@ typedef struct{
 }item_idx_range_t;
 typedef struct {
     uint8_t * ringbuf;
-    uint8_t rxbuf_wr_idx;
-    uint8_t item_wr_idx;
-    uint8_t item_rd_idx;
+    volatile uint8_t rxbuf_wr_idx;
+    volatile uint8_t item_wr_idx;
+    volatile uint8_t item_rd_idx;
     item_idx_range_t item_idx_range[DEBUG_UART_RX_BUFFER_CACHE];
 }rx_ring_buf_t;
 static rx_ring_buf_t debug_rx = {
@@ -73,13 +73,15 @@ void DebugUart_Init(void)
 }
 static void DebugUart_FrameDone(void)
 {
-    debug_rx.item_idx_range[debug_rx.item_wr_idx].end = debug_rx.rxbuf_wr_idx-1;
-    if(((debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE) != debug_rx.item_rd_idx){
+    uint8_t rxbuf_wr_idx = debug_rx.rxbuf_wr_idx;
+    uint8_t rd_idx = debug_rx.item_rd_idx;
+    debug_rx.item_idx_range[debug_rx.item_wr_idx].end = rxbuf_wr_idx-1;
+    if(((debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE) != rd_idx){
         debug_rx.item_wr_idx = (debug_rx.item_wr_idx+1)%DEBUG_UART_RX_BUFFER_CACHE;
-        debug_rx.item_idx_range[debug_rx.item_wr_idx].start = debug_rx.rxbuf_wr_idx;
+        debug_rx.item_idx_range[debug_rx.item_wr_idx].start = rxbuf_wr_idx;
+        process_poll(&DebugUart_Handler);
     }
 
-    process_poll(&DebugUart_Handler);
 }
 void DebugUart_IRQHandler(void)
 {
@@ -89,6 +91,9 @@ void DebugUart_IRQHandler(void)
     uint32_t cr3its     = READ_REG(huart->Instance->CR3);
     uint32_t errorflags = 0x00U;
     uint32_t dmarequest = 0x00U;
+    uint8_t rxbuf_wr_idx = debug_rx.rxbuf_wr_idx;
+
+    uint32_t idle_flag =__HAL_UART_GET_FLAG(huart,UART_FLAG_IDLE);
 
     errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
 
@@ -96,13 +101,12 @@ void DebugUart_IRQHandler(void)
     if (errorflags == RESET){
       /* UART in mode Receiver ---------------------------------------------------*/
       if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET)){
-        debug_rx.ringbuf[debug_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
-        return;
-      }
-      if((isrflags & USART_SR_IDLE) != RESET){
-        dmarequest = (uint8_t)(huart->Instance->SR);
-        dmarequest = (uint8_t)(huart->Instance->DR);
-        DebugUart_FrameDone();
+        debug_rx.ringbuf[rxbuf_wr_idx] = (uint8_t)(huart->Instance->DR);
+        debug_rx.rxbuf_wr_idx++;
+        if(idle_flag != RESET){
+            __HAL_UART_CLEAR_IDLEFLAG(huart);
+            DebugUart_FrameDone();
+        }
         return;
       }
     }
@@ -142,7 +146,8 @@ void DebugUart_IRQHandler(void)
           /* UART in mode Receiver -----------------------------------------------*/
           if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
           {
-              debug_rx.ringbuf[debug_rx.rxbuf_wr_idx++] = (uint8_t)(huart->Instance->DR);
+              debug_rx.ringbuf[rxbuf_wr_idx] = (uint8_t)(huart->Instance->DR);
+              debug_rx.rxbuf_wr_idx++;
           }
 
           /* If Overrun error occurs, or if any error occurs in DMA mode reception,
@@ -174,6 +179,10 @@ void DebugUart_IRQHandler(void)
 
       } /* End if some error occurs */
 
+       if(idle_flag != RESET){
+           __HAL_UART_CLEAR_IDLEFLAG(huart);
+           DebugUart_FrameDone();
+       }
 
 
 }
@@ -228,19 +237,17 @@ PROCESS_THREAD(DebugUart_Handler, ev, data)
         PROCESS_YIELD();
         if(ev == PROCESS_EVENT_POLL )
         {
-            do{
+            uint8_t rd_id = debug_rx.item_rd_idx;
+            while(rd_id != debug_rx.item_wr_idx){
                 uint8_t data[DEBUG_UART_RX_BUFFER_SIZE] = {0};
-                uint8_t len = DebugUart_RxBufLen(debug_rx.item_rd_idx);
+                uint8_t len = DebugUart_RxBufLen(rd_id);
                 DebugUart_RxBufRead(data,len);
-                if(len == 0) {
-                    if(debug_rx.item_rd_idx != debug_rx.item_wr_idx)
-                        continue;
-                    else
-                        break;
+                rd_id = ((rd_id+1)%DEBUG_UART_RX_BUFFER_CACHE);
+                if(len) {
+                    printf("%s",data);
+                    Shell_rec_buf((char*)data,len);
                 }
-                Shell_rec_buf((char*)data,len);
-                printf("%s",data);
-            }while(debug_rx.item_rd_idx != debug_rx.item_wr_idx);
+            };
         }
     }
     PROCESS_END();
