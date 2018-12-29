@@ -3,6 +3,7 @@
 
 
 #include <contiki.h>
+#define HW_VERSION_STR                          "01"
 
 extern uint8_t local_addr;
 extern uint32_t BaudRate;

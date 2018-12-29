@@ -646,7 +646,7 @@
       <archiveVersion>1</archiveVersion>
       <data>
         <prebuild></prebuild>
-        <postbuild>$PROJ_DIR$\post-build.bat "$TARGET_BPATH$" $PROJ_DIR$\..\Src\rom_info.h Debug</postbuild>
+        <postbuild>$PROJ_DIR$\post-build.bat "$TARGET_BPATH$" $PROJ_DIR$\..\Inc\rom_info.h Debug</postbuild>
       </data>
     </settings>
     <settings>
