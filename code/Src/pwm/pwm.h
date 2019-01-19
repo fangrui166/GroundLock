@@ -5,12 +5,15 @@
 
 #define PWM_TRIGGER1    GPIO_PIN_8
 #define PWM_TRIGGER2    GPIO_PIN_11
+#define PWM_POWER1_EN    GPIO_PIN_6
+#define PWM_POWER2_EN    GPIO_PIN_7
 
 #define CSB_IN1      GPIO_PIN_3
 #define CSB_IN2      GPIO_PIN_4
 
 #define CSB_PORT     GPIOB
 #define PWM_PORT     GPIOA
+#define PWM_POWER_PORT GPIOB
 
 #define PWM_MAX_TIMEOUT             1000  //ms
 #define PWM_TIMEOUT_DISTANCE        700  //cm

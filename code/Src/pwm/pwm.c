@@ -38,6 +38,7 @@ int PWM_ChannelAStart(uint32_t pwm_count)
     max_pwm_count_a = pwm_count;
     HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 #else
+    HAL_GPIO_WritePin(PWM_POWER_PORT, PWM_POWER1_EN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PWM_PORT, PWM_TRIGGER1, GPIO_PIN_SET);
     ctimer_set(&trigger_timer1, PWM_TRIGGER_TIME, PWM_TriggerEndA, NULL);
 #endif
@@ -53,6 +54,7 @@ int PWM_ChannelBStart(uint32_t pwm_count)
     max_pwm_count_b = pwm_count;
     HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_4);
 #else
+    HAL_GPIO_WritePin(PWM_POWER_PORT, PWM_POWER2_EN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PWM_PORT, PWM_TRIGGER2, GPIO_PIN_SET);
     ctimer_set(&trigger_timer2, PWM_TRIGGER_TIME, PWM_TriggerEndB, NULL);
 #endif
@@ -95,6 +97,7 @@ void PWM_CSBIN1_IRQHandler(void)
         else{
             uint32_t T_us = DWT_CYCCNT/(SystemCoreClock/1000000);
             uint32_t distance_cm =T_us/58;
+            HAL_GPIO_WritePin(PWM_POWER_PORT, PWM_POWER1_EN, GPIO_PIN_SET);
             logi("a distance :%d cm, %d us\n", distance_cm, T_us);
             Dist_MesureDone(distance_cm, PWM_Channel_A);
         }
@@ -113,6 +116,7 @@ void PWM_CSBIN2_IRQHandler(void)
         else{
             uint32_t T_us = DWT_CYCCNT/(SystemCoreClock/1000000);
             uint32_t distance_cm =T_us/58;
+            HAL_GPIO_WritePin(PWM_POWER_PORT, PWM_POWER2_EN, GPIO_PIN_SET);
             logi("b distance :%d cm, %d us\n", distance_cm, T_us);
             Dist_MesureDone(distance_cm, PWM_Channel_B);
         }
@@ -199,6 +203,7 @@ int PWM_GpioInit(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
     GPIO_InitStruct.Pin = CSB_IN1 | CSB_IN2;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
@@ -206,6 +211,14 @@ int PWM_GpioInit(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(CSB_PORT, &GPIO_InitStruct);
 #ifndef USE_PWM_TRGGER
+    GPIO_InitStruct.Pin = PWM_POWER1_EN | PWM_POWER2_EN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(PWM_POWER_PORT, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(PWM_POWER_PORT, PWM_POWER1_EN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(PWM_POWER_PORT, PWM_POWER2_EN, GPIO_PIN_SET);
+
     GPIO_InitStruct.Pin = PWM_TRIGGER1 | PWM_TRIGGER2;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -213,6 +226,7 @@ int PWM_GpioInit(void)
     HAL_GPIO_Init(PWM_PORT, &GPIO_InitStruct);
     HAL_GPIO_WritePin(PWM_PORT, PWM_TRIGGER1, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PWM_PORT, PWM_TRIGGER2, GPIO_PIN_RESET);
+
 #endif
 
     HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
